@@ -1,0 +1,50 @@
+//
+// InputInterface.cpp
+// ~~~~~~~~~~~~~~~~
+//
+// Copyright (C) 2018 IQOption Software, Inc.
+//
+//
+
+#include "InputInterface.h"
+#include "Record.h"
+
+@IQLOGGER_INPUT_TYPE_INCLUDE@
+
+using namespace iqlogger::inputs;
+
+InputPtr InputInterface::instantiate(const config::SourceConfig& sourceConfig)
+{
+    switch(sourceConfig.type)
+    {@IQLOGGER_INPUT_TYPE_SWITCH@
+        default:
+            break;
+    }
+
+    std::stringstream oss;
+    oss << "Unknown type " << sourceConfig.type;
+    throw Exception(oss.str());
+}
+
+InputInterface::InputInterface(const config::SourceConfig& sourceConfig) :
+    TaskInterface::TaskInterface(),
+    m_name(sourceConfig.name),
+    m_type(sourceConfig.type),
+    m_thread_num {sourceConfig.threads}
+{
+    TRACE("InputInterface::InputInterface()");
+
+    INFO("Initialize " << sourceConfig.name);
+
+#ifdef IQLOGGER_WITH_PROCESSOR
+    if(!sourceConfig.processor)
+    {
+        m_processorScriptIndex = std::nullopt;
+    }
+    else
+    {
+        INFO("Register processor for input " << m_name);
+        m_processorScriptIndex = processor::Processor::getInstance()->addProcessor(sourceConfig.processor.value().source);
+    }
+#endif
+}

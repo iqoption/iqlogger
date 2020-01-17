@@ -1,0 +1,9 @@
+add_library(${PROJECT_NAME}_input_gelf
+        CheckConfig.cpp
+        udp/GelfInput.cpp
+        tcp/GelfInput.cpp
+        udp/Server.cpp
+        udp/ChunkProcessor.cpp
+        tcp/Server.cpp
+        udp/GelfChunk.cpp
+        )

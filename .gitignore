@@ -1,0 +1,11 @@
+# CLion
+.idea
+
+# CMake
+CMakeFiles/
+cmake-build-*/
+*.cmake
+*.a
+Makefile
+
+

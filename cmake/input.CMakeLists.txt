@@ -1,0 +1,53 @@
+set(IQLOGGER_INPUT_TYPE_NAMES "")
+set(IQLOGGER_INPUT_TYPES "")
+set(IQLOGGER_INPUT_TYPE_MAP "")
+set(IQLOGGER_INPUT_TYPE_MAP_ "")
+set(IQLOGGER_INPUT_TYPE_INCLUDE "")
+set(IQLOGGER_INPUT_TYPE_SWITCH "")
+set(IQLOGGER_INPUT_TYPE_MESSAGE_SWITCH "")
+set(I 1)
+
+foreach(module ${IQLOGGER_INPUT_MODULES})
+    set(IQLOGGER_INPUT_TYPE_NAMES "${IQLOGGER_INPUT_TYPE_NAMES}, \"${module}\"")
+    string(TOUPPER ${module} TYPE)
+    string(SUBSTRING ${module} 0 1 FIRST_C)
+    string(TOUPPER ${FIRST_C} FIRST_C)
+    string(LENGTH ${module} STR_LEN)
+    string(SUBSTRING ${module} 1 ${STR_LEN}-1 LAST_C)
+    string(CONCAT MODULE_ ${FIRST_C} ${LAST_C})
+    set(IQLOGGER_INPUT_TYPES "${IQLOGGER_INPUT_TYPES}, ${TYPE} = ${I}")
+    set(IQLOGGER_INPUT_TYPE_MAP "${IQLOGGER_INPUT_TYPE_MAP}, {InputType::${TYPE}, \"${module}\"}")
+    set(IQLOGGER_INPUT_TYPE_MAP_ "${IQLOGGER_INPUT_TYPE_MAP_}, {\"${module}\", InputType::${TYPE}}")
+    set(IQLOGGER_INPUT_TYPE_SWITCH "${IQLOGGER_INPUT_TYPE_SWITCH}\n        case config::InputType::${TYPE} :
+        ${TYPE}_INPUT_INSTANTIATE(sourceConfig);\n        break;\n")
+    set(IQLOGGER_INPUT_TYPE_INCLUDE "${IQLOGGER_INPUT_TYPE_INCLUDE}\n#include \"${module}/Input.h\"")
+    set(IQLOGGER_INPUT_TYPE_INCLUDE_MESSAGE "${IQLOGGER_INPUT_TYPE_INCLUDE_MESSAGE}\n#include \"inputs/${module}/${MODULE_}.h\"")
+    if(${I} EQUAL 1)
+        set(IQLOGGER_INPUT_TYPE_VARIANT "${IQLOGGER_INPUT_TYPE_VARIANT}inputs::${module}::${MODULE_}::MessageT")
+    else()
+        set(IQLOGGER_INPUT_TYPE_VARIANT "${IQLOGGER_INPUT_TYPE_VARIANT}, inputs::${module}::${MODULE_}::MessageT")
+    endif()
+    set(IQLOGGER_INPUT_MODULE_${TYPE} 1)
+    MATH(EXPR I "${I}+1")
+endforeach(module)
+
+configure_file (
+        "${PROJECT_SOURCE_DIR}/src/Message.h.in"
+        "${PROJECT_BINARY_DIR}/src/Message.h"
+)
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/config/input/InputConfig.h.in"
+    "${PROJECT_BINARY_DIR}/src/config/input/InputConfig.h"
+)
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/inputs/InputInterface.cpp.in"
+    "${PROJECT_BINARY_DIR}/src/inputs/InputInterface.cpp"
+)
+
+set(IQLOGGER_INPUT_LIBRARIES "")
+foreach(module ${IQLOGGER_INPUT_MODULES})
+    add_subdirectory("src/inputs/${module}")
+    set(IQLOGGER_INPUT_LIBRARIES "${IQLOGGER_INPUT_LIBRARIES};${PROJECT_NAME}_input_${module}")
+endforeach(module)

@@ -1,0 +1,26 @@
+//
+// StatsExportServer.cpp
+// ~~~~~~~~~~~~~~~~
+//
+// Copyright (C) 2018 IQOption Software, Inc.
+//
+//
+
+#include "StatsExportServer.h"
+
+@IQLOGGER_STATS_TYPE_INCLUDE@
+
+using namespace iqlogger::stats;
+
+StatsExportServerPtr StatsExportServer::instantiate(config::StatsEntryConfig statsEntryConfig)
+{
+    switch(statsEntryConfig.type)
+    {@IQLOGGER_STATS_TYPE_SWITCH@
+        default:
+            break;
+    }
+
+    std::stringstream oss;
+    oss << "Unknown type " << statsEntryConfig.type;
+    throw Exception(oss.str());
+}

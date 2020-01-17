@@ -1,0 +1,107 @@
+//
+// OutputConfig.h
+// ~~~~~~~~~~~~~~~~
+//
+// Copyright (C) 2018 IQOption Software, Inc.
+//
+//
+
+#pragma once
+
+#include "config/ConfigInterface.h"
+
+namespace iqlogger::config {
+
+    enum class OutputType {
+        UNDEFINED   = 0@IQLOGGER_OUTPUT_TYPES@
+    };
+
+    struct DestinationConfig : public ConfigInterface {
+
+        OutputType                              type    = OutputType::UNDEFINED;
+        std::string                             name;
+        size_t                                  threads = 1;
+        std::chrono::seconds                    timeout {60};
+        std::unordered_map<std::string, json>   params;
+
+        template<class T>
+        std::optional<T> getParam(const std::string &key) const {
+            try {
+                return params.at(key).get<T>();
+            }
+            catch (const std::exception& e) {
+                return std::nullopt;
+            }
+        }
+
+    private:
+
+        static constexpr std::pair<OutputType, frozen::string> s_output_type_to_str_map[]
+        {
+            {OutputType::UNDEFINED, "undefined"}@IQLOGGER_OUTPUT_TYPE_MAP@
+        };
+
+        static constexpr auto output_type_to_str_map = frozen::make_unordered_map(s_output_type_to_str_map);
+
+        static constexpr std::pair<frozen::string, OutputType> s_output_type_from_str_map[]
+        {
+            {"undefined",   OutputType::UNDEFINED}@IQLOGGER_OUTPUT_TYPE_MAP_@
+        };
+
+        static constexpr auto output_type_from_str_map = frozen::make_unordered_map(s_output_type_from_str_map);
+
+    public:
+
+        static constexpr frozen::string output_type_to_str(OutputType t)
+        {
+            return output_type_to_str_map.at(t);
+        }
+
+        static constexpr OutputType output_type_from_str(frozen::string const& name)
+        {
+            return output_type_from_str_map.at(name);
+        }
+    };
+
+    struct OutputConfig : public ConfigInterface {
+
+        size_t                          threads             = 1;
+        std::vector<DestinationConfig>  destinationsConfigs;
+
+        OutputConfig() noexcept = default;
+    };
+
+    inline void from_json(const json& j, OutputType& t)
+    {
+        try
+        {
+            const auto str = j.get<std::string>();
+            t = DestinationConfig::output_type_from_str(frozen::string(str.data(), str.size()));
+        }
+        catch(const json::exception& e)
+        {
+            t = OutputType::UNDEFINED;
+        }
+    }
+
+    template<>
+    std::optional<unsigned short> DestinationConfig::getParam(const std::string &key) const;
+}
+
+namespace nlohmann {
+
+    template <>
+    struct adl_serializer<iqlogger::config::OutputConfig>
+    {
+        static void from_json(const json& j, iqlogger::config::OutputConfig& outputConfig);
+    };
+
+    template <>
+    struct adl_serializer<iqlogger::config::DestinationConfig>
+    {
+        static void from_json(const json& j, iqlogger::config::DestinationConfig& destinationConfig);
+    };
+}
+
+std::ostream& operator<< (std::ostream& os, iqlogger::config::OutputType type);
+

@@ -1,0 +1,36 @@
+set(IQLOGGER_OUTPUT_TYPE_NAMES "")
+set(IQLOGGER_OUTPUT_TYPES "")
+set(IQLOGGER_OUTPUT_TYPE_MAP "")
+set(IQLOGGER_OUTPUT_TYPE_MAP_ "")
+set(IQLOGGER_OUTPUT_TYPE_INCLUDE "")
+set(IQLOGGER_OUTPUT_TYPE_SWITCH "")
+set(I 1)
+
+foreach(module ${IQLOGGER_OUTPUT_MODULES})
+    set(IQLOGGER_OUTPUT_TYPE_NAMES "${IQLOGGER_OUTPUT_TYPE_NAMES}, \"${module}\"")
+    set(TYPE "")
+    string(TOUPPER ${module} TYPE)
+    set(IQLOGGER_OUTPUT_TYPES "${IQLOGGER_OUTPUT_TYPES}, ${TYPE} = ${I}")
+    set(IQLOGGER_OUTPUT_TYPE_MAP "${IQLOGGER_OUTPUT_TYPE_MAP}, {OutputType::${TYPE}, \"${module}\"}")
+    set(IQLOGGER_OUTPUT_TYPE_MAP_ "${IQLOGGER_OUTPUT_TYPE_MAP_}, {\"${module}\", OutputType::${TYPE}}")
+    set(IQLOGGER_OUTPUT_TYPE_SWITCH "${IQLOGGER_OUTPUT_TYPE_SWITCH}\n        case config::OutputType::${TYPE} :
+            ${TYPE}_OUTPUT_INSTANTIATE(destinationConfig, total_outputs_send_counter);\n        break;\n")
+    set(IQLOGGER_OUTPUT_TYPE_INCLUDE "${IQLOGGER_OUTPUT_TYPE_INCLUDE}\n#include \"${module}/Output.h\"")
+    MATH(EXPR I "${I}+1")
+endforeach(module)
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/config/output/OutputConfig.h.in"
+    "${PROJECT_BINARY_DIR}/src/config/output/OutputConfig.h"
+)
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/src/outputs/OutputInterface.cpp.in"
+    "${PROJECT_BINARY_DIR}/src/outputs/OutputInterface.cpp"
+)
+
+set(IQLOGGER_OUTPUT_LIBRARIES "")
+foreach(module ${IQLOGGER_OUTPUT_MODULES})
+    add_subdirectory("src/outputs/${module}")
+    set(IQLOGGER_OUTPUT_LIBRARIES "${IQLOGGER_OUTPUT_LIBRARIES};${PROJECT_NAME}_output_${module}")
+endforeach(module)

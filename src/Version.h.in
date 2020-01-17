@@ -1,0 +1,13 @@
+//
+// Version.h
+// ~~~~~~~~~~~~~~~~
+//
+// Copyright (C) 2018 IQOption Software, Inc.
+//
+//
+
+#pragma once
+
+#define IQLOGGER_VERSION "@IQLOGGER_VERSION@"
+
+
