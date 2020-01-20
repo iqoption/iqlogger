@@ -12,17 +12,13 @@
 
 namespace iqlogger::inputs::tail {
 
-    using Position = int64_t;
+using Position = int64_t;
 
-    class Tail {
-
-    public:
-
-        using RecordDataT   = std::string;
-        using MessageT      = iqlogger::formats::tail::TailMessage;
-        using SourceT       = MessageT::SourceT;
-    };
-}
-
-
-
+class Tail
+{
+public:
+  using RecordDataT = std::string;
+  using MessageT = iqlogger::formats::tail::TailMessage;
+  using SourceT = MessageT::SourceT;
+};
+}  // namespace iqlogger::inputs::tail

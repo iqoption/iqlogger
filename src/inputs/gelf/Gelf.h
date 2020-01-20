@@ -15,12 +15,11 @@
 
 namespace iqlogger::inputs::gelf {
 
-    class Gelf {
-
-    public:
-
-        using RecordDataT   = std::string;
-        using MessageT      = iqlogger::formats::gelf::GelfMessage;
-        using SourceT       = MessageT::SourceT;
-    };
-}
+class Gelf
+{
+public:
+  using RecordDataT = std::string;
+  using MessageT = iqlogger::formats::gelf::GelfMessage;
+  using SourceT = MessageT::SourceT;
+};
+}  // namespace iqlogger::inputs::gelf

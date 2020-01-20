@@ -4,5 +4,6 @@ add_library(${PROJECT_NAME}_stats_http Connection.cpp
         Reply.cpp
         RequestHandler.cpp
         RequestParser.cpp
-        Server.cpp)
+        Server.cpp
+        StatsExportServer.cpp)
 

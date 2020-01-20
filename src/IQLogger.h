@@ -8,41 +8,38 @@
 
 #pragma once
 
-#include "config/ConfigManager.h"
-#include "InputServer.h"
-#include "OutputServer.h"
-#include "metrics/MetricsController.h"
-#include "MainMessageQueue.h"
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/signal_set.hpp>
 
-#ifdef IQLOGGER_WITH_PROCESSOR
-#include <processor/Processor.h>
-#endif
+#include "InputServer.h"
+#include "MainMessageQueue.h"
+#include "OutputServer.h"
+#include "config/ConfigManager.h"
+#include "metrics/MetricsController.h"
 
 namespace iqlogger {
 
-    class IQLogger : public Singleton<IQLogger>, public TaskInterface {
+class IQLogger : public Singleton<IQLogger>, public TaskInterface
+{
+  friend class Singleton<IQLogger>;
 
-        boost::asio::io_service m_io_service;
-        boost::asio::signal_set m_signals;
+public:
+  ~IQLogger() = default;
 
-        metrics::MetricsControllerPtr    m_metricsControllerPtr;
-        MainMessageQueuePtr     m_mainMessageQueuePtr;
-#ifdef IQLOGGER_WITH_PROCESSOR
-        processor::ProcessorPtr m_processorPtr;
-#endif
-        InputServerPtr          m_inputServerPtr;
-        OutputServerPtr         m_outputServerPtr;
+protected:
+  void initImpl(std::any) override;
+  void startImpl() override;
+  void stopImpl() override;
 
-        explicit IQLogger();
-        friend class Singleton<IQLogger>;
+private:
+  explicit IQLogger();
 
-    public:
+  boost::asio::io_context m_io_context;
+  boost::asio::signal_set m_signals;
 
-        virtual ~IQLogger() {};
-
-        void start() override;
-//        void restart() override;
-
-        void shutdown();
-    };
+  metrics::MetricsControllerPtr m_metricsControllerPtr;
+  MainMessageQueuePtr m_mainMessageQueuePtr;
+  InputServerPtr m_inputServerPtr;
+  OutputServerPtr m_outputServerPtr;
+};
 }

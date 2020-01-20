@@ -10,11 +10,7 @@
 
 using namespace iqlogger;
 
-std::ostream& operator<<(std::ostream& os, const endpoint_t& v)
-{
-    std::visit([&os](auto&& arg) {
-        os << arg;
-    }, v);
-    return os;
+std::ostream& operator<<(std::ostream& os, const endpoint_t& v) {
+  std::visit([&os](auto&& arg) { os << arg; }, v);
+  return os;
 }
-

@@ -12,7 +12,6 @@ using namespace iqlogger;
 using namespace iqlogger::config;
 
 template<>
-bool SourceConfigCheckImpl<InputType::GELF>::operator()([[maybe_unused]] const SourceConfig& sourceConfig) const
-{
-    return true;
+bool SourceConfigCheckImpl<InputType::GELF>::operator()([[maybe_unused]] const SourceConfig& sourceConfig) const {
+  return true;
 }

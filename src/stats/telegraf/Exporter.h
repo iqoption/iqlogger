@@ -10,48 +10,41 @@
 
 #include <string>
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 namespace iqlogger::stats::telegraf {
 
-    class Exporter
-    {
-        std::string             m_measurement;
+class Exporter
+{
+  std::string m_measurement;
 
-        boost::property_tree::ptree getMetricsPtree();
+  boost::property_tree::ptree getMetricsPtree();
 
-    public:
+public:
+  Exporter(const std::string& measurement);
+  ~Exporter() = default;
+  std::string exportTelegraf();
 
-        Exporter(const std::string& measurement);
-        ~Exporter() = default;
-        std::string exportTelegraf();
+private:
+  template<typename Tree, typename F, typename Pred /* = bool(*)(Tree const&)*/, typename PathType = std::string>
+  void visit_if(Tree& tree, F const& f, Pred const& p, PathType const& path = PathType()) {
+    if (p(tree))
+      f(path, tree);
 
-    private:
+    for (auto& child : tree)
+      if (path.empty())
+        visit_if(child.second, f, p, child.first);
+      else
+        visit_if(child.second, f, p, path + "." + child.first);
+  }
 
-        template <typename Tree, typename F, typename Pred/* = bool(*)(Tree const&)*/, typename PathType = std::string>
-        void visit_if(Tree& tree, F const& f, Pred const& p, PathType const& path = PathType())
-        {
-            if (p(tree))
-                f(path, tree);
+  template<typename Tree, typename F, typename PathType = std::string>
+  void visit(Tree& tree, F const& f, PathType const& path = PathType()) {
+    visit_if(
+        tree, f, [](Tree const&) { return true; }, path);
+  }
 
-            for(auto& child : tree)
-                if (path.empty())
-                    visit_if(child.second, f, p, child.first);
-                else
-                    visit_if(child.second, f, p, path + "." + child.first);
-        }
-
-        template <typename Tree, typename F, typename PathType = std::string>
-        void visit(Tree& tree, F const& f, PathType const& path = PathType())
-        {
-            visit_if(tree, f, [](Tree const&){ return true; }, path);
-        }
-
-        static bool is_leaf(boost::property_tree::ptree const& pt) {
-            return pt.empty();
-        }
-    };
-}
-
-
+  static bool is_leaf(boost::property_tree::ptree const& pt) { return pt.empty(); }
+};
+}  // namespace iqlogger::stats::telegraf

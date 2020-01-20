@@ -6,9 +6,8 @@
 //
 //
 
-#include "core/Log.h"
 #include "MessageQueue.h"
+#include "core/Log.h"
 #include "metrics/MetricsController.h"
 
 using namespace iqlogger;
-

@@ -12,9 +12,8 @@
 
 namespace iqlogger::stats::http {
 
-    struct Header
-    {
-        std::string name;
-        std::string value;
-    };
-}
+struct Header {
+  std::string name;
+  std::string value;
+};
+}  // namespace iqlogger::stats::http

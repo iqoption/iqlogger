@@ -1,1 +1,1 @@
-add_library(${PROJECT_NAME}_output_gelf Output.cpp tcp/GelfOutput.cpp )
+add_library(${PROJECT_NAME}_output_gelf Output.cpp tcp/GelfOutput.cpp)

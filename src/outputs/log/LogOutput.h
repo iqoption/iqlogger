@@ -13,19 +13,17 @@
 
 namespace iqlogger::outputs::log {
 
-    class LogOutput : public Output<Log> {
+class LogOutput : public Output<Log>
+{
+  std::function<void()> m_outputThreadCallback;  // @TODO Remove Later
 
-        std::function<void()> m_outputThreadCallback; // @TODO Remove Later
+public:
+  explicit LogOutput(config::DestinationConfig destinationConfig, metrics::atomic_metric_t& total_outputs_send_counter);
 
-    public:
+protected:
 
-        explicit LogOutput(config::DestinationConfig destinationConfig, metrics::atomic_metric_t& total_outputs_send_counter);
+  void startImpl() override;
+  void stopImpl() override;
+};
 
-        virtual void start() override;
-        virtual void stop() override;
-//        virtual void restart() override;
-
-    };
-
-}
-
+}  // namespace iqlogger::outputs::log

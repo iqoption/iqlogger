@@ -1,21 +1,23 @@
-set(IQLOGGER_STATS_TYPE_NAMES "")
+set(IQLOGGER_STATS_EXPORT_TYPE_LIST "")
 set(IQLOGGER_STATS_TYPES "")
 set(IQLOGGER_STATS_TYPE_MAP "")
 set(IQLOGGER_STATS_TYPE_MAP_ "")
-set(IQLOGGER_STATS_TYPE_INCLUDE "")
-set(IQLOGGER_STATS_TYPE_SWITCH "")
+
 set(I 1)
 
 foreach(module ${IQLOGGER_STATS_MODULES})
-    set(IQLOGGER_STATS_TYPE_NAMES "${IQLOGGER_STATS_TYPE_NAMES}, \"${module}\"")
     set(TYPE "")
     string(TOUPPER ${module} TYPE)
-    set(IQLOGGER_STATS_TYPES "${IQLOGGER_STATS_TYPES}, ${TYPE} = ${I}")
+    set(IQLOGGER_STATS_TYPES "${IQLOGGER_STATS_TYPES}(${TYPE})")
     set(IQLOGGER_STATS_TYPE_MAP "${IQLOGGER_STATS_TYPE_MAP}, {StatsEntryType::${TYPE}, \"${module}\"}")
     set(IQLOGGER_STATS_TYPE_MAP_ "${IQLOGGER_STATS_TYPE_MAP_}, {\"${module}\", StatsEntryType::${TYPE}}")
-    set(IQLOGGER_STATS_TYPE_SWITCH "${IQLOGGER_STATS_TYPE_SWITCH}\n        case config::StatsEntryType::${TYPE} :
-            ${TYPE}_STATS_INSTANTIATE(statsEntryConfig);\n        break;\n")
-    set(IQLOGGER_STATS_TYPE_INCLUDE "${IQLOGGER_STATS_TYPE_INCLUDE}\n#include \"${module}/Server.h\"")
+
+    if(${I} EQUAL 1)
+        set(IQLOGGER_STATS_EXPORT_TYPE_LIST "config::StatsEntryType::${TYPE}")
+    else()
+        set(IQLOGGER_STATS_EXPORT_TYPE_LIST "${IQLOGGER_STATS_EXPORT_TYPE_LIST}, config::StatsEntryType::${TYPE}")
+    endif()
+
     MATH(EXPR I "${I}+1")
 endforeach(module)
 

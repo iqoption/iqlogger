@@ -10,7 +10,6 @@
 
 using namespace iqlogger::config;
 
-std::ostream& operator<< (std::ostream& os, QueueOverflowStrategy strategy)
-{
-    return os << QueueOverflowStrategyMap::strategy_to_str(strategy).data();
+std::ostream& operator<<(std::ostream& os, const QueueOverflowStrategy::Type& strategy) {
+  return os << QueueOverflowStrategy::strategy_to_str(strategy).data();
 }

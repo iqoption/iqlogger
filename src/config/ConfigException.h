@@ -12,9 +12,9 @@
 
 namespace iqlogger::config {
 
-    class ConfigException : public iqlogger::Exception {
-        using iqlogger::Exception::Exception;
-    };
+class ConfigException : public iqlogger::Exception
+{
+  using iqlogger::Exception::Exception;
+};
 
-}
-
+}  // namespace iqlogger::config

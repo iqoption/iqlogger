@@ -11,36 +11,34 @@
 #include <boost/asio/io_service.hpp>
 #include <core/TaskInterface.h>
 
+#include "config/Config.h"
 #include "core/Singleton.h"
 #include "inputs/InputInterface.h"
-#include "config/Config.h"
 
 namespace iqlogger {
 
-    class InputServer : public Singleton<InputServer>, public TaskInterface {
+class InputServer : public Singleton<InputServer>, public TaskInterface
+{
+  friend class Singleton<InputServer>;
 
-        friend class Singleton<InputServer>;
+public:
+  virtual ~InputServer();
 
-        std::vector<inputs::InputPtr> m_inputs;
+protected:
+  void initImpl(std::any) override;
+  void startImpl() override;
+  void stopImpl() override;
 
-        // Потоки для внутренней работы сервера (перекладывание из очередей + валидация)
-        size_t m_thread_num;
-        std::vector<std::thread> m_threads;
+private:
+  InputServer();
 
-        metrics::atomic_metric_t m_receive_counter;
+  std::vector<inputs::InputPtr> m_inputs;
 
-        InputServer();
+  size_t m_thread_num;
+  std::vector<std::thread> m_threads;
 
-    public:
+  metrics::atomic_metric_t m_receive_counter;
+};
 
-        virtual ~InputServer();
-
-        virtual void start() override;
-        virtual void stop() override;
-//        void restart() override;
-    };
-
-    using InputServerPtr = std::shared_ptr<InputServer>;
-}
-
-
+using InputServerPtr = std::shared_ptr<InputServer>;
+}  // namespace iqlogger

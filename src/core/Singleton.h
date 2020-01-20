@@ -12,21 +12,18 @@
 
 namespace iqlogger {
 
-    template<class T>
-    class Singleton {
-    public:
+template<class T>
+class Singleton
+{
+public:
+  static std::shared_ptr<T> getInstance() {
+    static std::shared_ptr<T> instance(new T());
+    return instance;
+  }
 
-        static std::shared_ptr <T> getInstance()
-        {
-            static std::shared_ptr<T> instance(new T());
-            return instance;
-        }
-
-        Singleton()= default;
-        ~Singleton()= default;
-        Singleton(const Singleton&)= delete;
-        Singleton& operator=(const Singleton&)= delete;
-    };
-}
-
-
+  Singleton() = default;
+  ~Singleton() = default;
+  Singleton(const Singleton&) = delete;
+  Singleton& operator=(const Singleton&) = delete;
+};
+}  // namespace iqlogger

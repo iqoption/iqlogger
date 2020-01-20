@@ -8,10 +8,15 @@
 
 #pragma once
 
-#include <variant>
 #include <memory>
-#include "core/Log.h"
+#include <variant>
 
+#include "Defines.h"
+
+#ifdef IQLOGGER_WITH_PROCESSOR
+#include "processor/ProcessorMessage.h"
+#endif
+#include "core/Log.h"
 @IQLOGGER_INPUT_TYPE_INCLUDE_MESSAGE@
 
 #cmakedefine IQLOGGER_INPUT_MODULE_TAIL
@@ -22,9 +27,12 @@
 
 namespace iqlogger {
 
-    using Message = std::variant<@IQLOGGER_INPUT_TYPE_VARIANT@>;
+#ifdef IQLOGGER_WITH_PROCESSOR
+  using Message = std::variant<@IQLOGGER_INPUT_TYPE_VARIANT@, processor::ProcessorMessage>;
+#else
+  using Message = std::variant<@IQLOGGER_INPUT_TYPE_VARIANT@>;
+#endif
 
-    using SharedMessagePtr = std::shared_ptr<Message>;
-    using UniqueMessagePtr = std::unique_ptr<Message>;
+  using SharedMessagePtr = std::shared_ptr<Message>;
+  using UniqueMessagePtr = std::unique_ptr<Message>;
 }
-

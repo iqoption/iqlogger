@@ -1,0 +1,36 @@
+---
+
+BasedOnStyle:  Google
+
+AccessModifierOffset:                -2
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine:    Inline
+AllowShortLoopsOnASingleLine:        false
+BreakConstructorInitializers:        AfterColon
+ColumnLimit:                         120
+IndentCaseLabels:                    false
+SpaceBeforeInheritanceColon:         true
+SpaceAfterTemplateKeyword:           false
+TabWidth:                            2
+AlignAfterOpenBracket:               true
+AlignOperands:                       true
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterEnum: true
+  AfterClass: true
+  AfterControlStatement: false
+  BeforeCatch: false
+  BeforeElse: false
+AllowAllParametersOfDeclarationOnNextLine: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+IncludeCategories:
+  - Regex:           '<((?!boost).)*$'
+    Priority:        1
+  - Regex:           '<boost.+'
+    Priority:        2
+  - Regex:           '<.+'
+    Priority:        3
+  - Regex:           '".+'
+    Priority:        4
+
+...

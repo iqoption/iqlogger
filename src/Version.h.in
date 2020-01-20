@@ -9,5 +9,3 @@
 #pragma once
 
 #define IQLOGGER_VERSION "@IQLOGGER_VERSION@"
-
-

@@ -8,36 +8,34 @@
 
 #pragma once
 
-#include "core/Base.h"
-#include "config/core/Core.h"
 #include "ConfigException.h"
+#include "config/core/Core.h"
+#include "core/Base.h"
 #include "input/InputConfig.h"
-#include "output/OutputConfig.h"
 #include "logger/LoggerConfig.h"
+#include "output/OutputConfig.h"
 #include "processor/ProcessorConfig.h"
 #include "stats/StatsConfig.h"
 
 namespace iqlogger::config {
 
-    struct Config {
-
-        LoggerConfig    loggerConfig;
-        InputConfig     inputConfig;
-        OutputConfig    outputConfig;
+struct Config {
+  LoggerConfig loggerConfig;
+  InputConfig inputConfig;
+  OutputConfig outputConfig;
 #ifdef IQLOGGER_WITH_PROCESSOR
-        ProcessorConfig processorConfig;
+  ProcessorConfig processorConfig;
 #endif
-        StatsConfig     statsConfig;
+  StatsConfig statsConfig;
 
-        Config() = delete;
-        Config(const Config&) = delete;
-        Config(Config&&) = default;
+  Config() = delete;
+  Config(const Config&) = delete;
+  Config(Config&&) = default;
 
-        explicit Config(const json& j);
+  explicit Config(const json& j);
 
-        bool check() const;
-    };
+  bool check() const;
+};
 
-    using ConfigPtr = std::shared_ptr<Config>;
-}
-
+using ConfigPtr = std::shared_ptr<Config>;
+}  // namespace iqlogger::config

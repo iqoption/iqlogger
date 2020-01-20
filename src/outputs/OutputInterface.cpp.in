@@ -6,45 +6,30 @@
 //
 //
 
-#include <metrics/MetricsController.h>
 #include "Exception.h"
-#include "gelf/Output.h"
-
-@IQLOGGER_OUTPUT_TYPE_INCLUDE@
+#include "OutputInterface.h"
+#include <metrics/MetricsController.h>
 
 using namespace iqlogger::outputs;
 
-OutputPtr OutputInterface::instantiate(config::DestinationConfig destinationConfig, metrics::atomic_metric_t& total_outputs_send_counter)
-{
-    switch(destinationConfig.type)
-    {@IQLOGGER_OUTPUT_TYPE_SWITCH@
-        default:
-            break;
-    }
-
-    std::stringstream oss;
-    oss << "Unknown type " << destinationConfig.type;
-    throw Exception(oss.str());
+OutputPtr OutputInterface::instantiate(const config::DestinationConfig& destinationConfig,
+                                       metrics::atomic_metric_t& total_outputs_send_counter) {
+  return instantiateImpl<@IQLOGGER_OUTPUT_TYPE_LIST@>(destinationConfig, total_outputs_send_counter);
 }
 
 OutputInterface::OutputInterface(config::DestinationConfig destinationConfig) :
-    TaskInterface::TaskInterface(),
     m_name(destinationConfig.name),
     m_type(destinationConfig.type),
-    m_thread_num {destinationConfig.threads},
-    m_timeout{destinationConfig.timeout}
-{
+    m_thread_num{destinationConfig.threads},
+    m_timeout{destinationConfig.timeout} {}
+
+void OutputInterface::initImpl(std::any) {
+  // @TODO
 }
 
-void OutputInterface::start()
-{
-    TaskInterface::start();
-}
-
-void OutputInterface::stop()
-{
-    TRACE("Output stop m_io_service");
-    m_io_service.stop();
-    TaskInterface::stop();
-    TRACE("Output::stop() <-");
+void OutputInterface::stopImpl() {
+  TRACE("Output stop m_io_service");
+  // @TODO Remove
+  m_io_service.stop();
+  TRACE("Output::stop() <-");
 }

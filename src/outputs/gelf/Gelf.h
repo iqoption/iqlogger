@@ -14,15 +14,11 @@
 
 namespace iqlogger::outputs::gelf {
 
-    class Gelf {
-
-    public:
-
-        using DataT = std::string;
-        using MessageT = iqlogger::formats::gelf::GelfMessage;
-        using DataExportT = std::string_view;
-    };
-}
-
-
-
+class Gelf
+{
+public:
+  using DataT = std::string;
+  using MessageT = iqlogger::formats::gelf::GelfMessage;
+  using DataExportT = std::string_view;
+};
+}  // namespace iqlogger::outputs::gelf

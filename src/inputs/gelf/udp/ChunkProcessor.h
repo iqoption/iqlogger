@@ -8,9 +8,6 @@
 
 #pragma once
 
-
-class ChunkProcessor {
-
+class ChunkProcessor
+{
 };
-
-

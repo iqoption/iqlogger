@@ -14,17 +14,18 @@
 
 namespace iqlogger::formats::gelf {
 
-    class GelfException : public Exception {
-        using Exception::Exception;
-    };
+class GelfException : public Exception
+{
+  using Exception::Exception;
+};
 
-    class GelfUncompressError : public GelfException {
-        using GelfException::GelfException;
-    };
+class GelfUncompressError : public GelfException
+{
+  using GelfException::GelfException;
+};
 
-    class GelfParseError : public GelfException {
-        using GelfException::GelfException;
-    };
-}
-
-
+class GelfParseError : public GelfException
+{
+  using GelfException::GelfException;
+};
+}  // namespace iqlogger::formats::gelf

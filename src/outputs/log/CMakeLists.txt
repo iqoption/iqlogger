@@ -1,1 +1,1 @@
-add_library(${PROJECT_NAME}_output_log Output.cpp LogOutput.cpp )
+add_library(${PROJECT_NAME}_output_log Output.cpp LogOutput.cpp)

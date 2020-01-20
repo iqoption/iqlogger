@@ -14,13 +14,13 @@
 
 namespace iqlogger::formats::json {
 
-    class JsonException : public Exception {
-        using Exception::Exception;
-    };
+class JsonException : public Exception
+{
+  using Exception::Exception;
+};
 
-    class JsonParseError : public JsonException {
-        using JsonException::JsonException;
-    };
-}
-
-
+class JsonParseError : public JsonException
+{
+  using JsonException::JsonException;
+};
+}  // namespace iqlogger::formats::json

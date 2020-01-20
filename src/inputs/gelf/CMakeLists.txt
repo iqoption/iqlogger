@@ -1,4 +1,5 @@
 add_library(${PROJECT_NAME}_input_gelf
+        Input.cpp
         CheckConfig.cpp
         udp/GelfInput.cpp
         tcp/GelfInput.cpp

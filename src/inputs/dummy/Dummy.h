@@ -12,15 +12,11 @@
 
 namespace iqlogger::inputs::dummy {
 
-    class Dummy {
-
-    public:
-
-        using RecordDataT   = std::string;
-        using MessageT      = RecordDataT;
-        using SourceT       = void;
-    };
-}
-
-
-
+class Dummy
+{
+public:
+  using RecordDataT = std::string;
+  using MessageT = RecordDataT;
+  using SourceT = void;
+};
+}  // namespace iqlogger::inputs::dummy

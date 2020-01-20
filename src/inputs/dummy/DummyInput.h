@@ -10,26 +10,25 @@
 
 #include <chrono>
 
-#include "inputs/IOInput.h"
 #include "DummyInput.h"
+#include "inputs/IOInput.h"
 
 namespace iqlogger::inputs::dummy {
 
-    class DummyInput : public Input<Dummy> {
+class DummyInput : public Input<Dummy>
+{
+public:
+  explicit DummyInput(const config::SourceConfig& sourceConfig);
+  virtual ~DummyInput();
 
-        std::string                 m_dummy_text;
-        std::chrono::milliseconds   m_interval;
+protected:
 
-        std::thread m_thread;
+  void startImpl() override;
+  void stopImpl() override;
 
-    public:
-
-        explicit DummyInput(const config::SourceConfig& sourceConfig);
-        virtual ~DummyInput();
-
-        virtual void start() override;
-        virtual void stop() override;
-    };
-}
-
-
+private:
+  std::string m_dummy_text;
+  std::chrono::milliseconds m_interval;
+  std::thread m_thread;
+};
+}  // namespace iqlogger::inputs::dummy

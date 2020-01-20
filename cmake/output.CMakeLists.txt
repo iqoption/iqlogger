@@ -1,9 +1,8 @@
+set(IQLOGGER_OUTPUT_TYPE_LIST "")
 set(IQLOGGER_OUTPUT_TYPE_NAMES "")
 set(IQLOGGER_OUTPUT_TYPES "")
 set(IQLOGGER_OUTPUT_TYPE_MAP "")
 set(IQLOGGER_OUTPUT_TYPE_MAP_ "")
-set(IQLOGGER_OUTPUT_TYPE_INCLUDE "")
-set(IQLOGGER_OUTPUT_TYPE_SWITCH "")
 set(I 1)
 
 foreach(module ${IQLOGGER_OUTPUT_MODULES})
@@ -13,9 +12,13 @@ foreach(module ${IQLOGGER_OUTPUT_MODULES})
     set(IQLOGGER_OUTPUT_TYPES "${IQLOGGER_OUTPUT_TYPES}, ${TYPE} = ${I}")
     set(IQLOGGER_OUTPUT_TYPE_MAP "${IQLOGGER_OUTPUT_TYPE_MAP}, {OutputType::${TYPE}, \"${module}\"}")
     set(IQLOGGER_OUTPUT_TYPE_MAP_ "${IQLOGGER_OUTPUT_TYPE_MAP_}, {\"${module}\", OutputType::${TYPE}}")
-    set(IQLOGGER_OUTPUT_TYPE_SWITCH "${IQLOGGER_OUTPUT_TYPE_SWITCH}\n        case config::OutputType::${TYPE} :
-            ${TYPE}_OUTPUT_INSTANTIATE(destinationConfig, total_outputs_send_counter);\n        break;\n")
-    set(IQLOGGER_OUTPUT_TYPE_INCLUDE "${IQLOGGER_OUTPUT_TYPE_INCLUDE}\n#include \"${module}/Output.h\"")
+
+    if(${I} EQUAL 1)
+        set(IQLOGGER_OUTPUT_TYPE_LIST "config::OutputType::${TYPE}")
+    else()
+        set(IQLOGGER_OUTPUT_TYPE_LIST "${IQLOGGER_OUTPUT_TYPE_LIST}, config::OutputType::${TYPE}")
+    endif()
+
     MATH(EXPR I "${I}+1")
 endforeach(module)
 

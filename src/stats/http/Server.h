@@ -18,43 +18,23 @@
 
 namespace iqlogger::stats::http {
 
-    class Server : public StatsExportServer
-    {
-    public:
+class Server : public StatsExportServer
+{
+public:
+  explicit Server(const std::string& address, unsigned short port);
 
-        explicit Server(const std::string& address, unsigned short port);
+protected:
 
-        virtual void start() override;
-        virtual void stop() override;
+  void startImpl() override;
+  void stopImpl() override;
 
-    private:
+private:
 
-        void do_accept();
+  void do_accept();
 
-        boost::asio::io_service m_io_service;
-        boost::asio::ip::tcp::acceptor m_acceptor;
-        ConnectionManager m_connectionManager;
-        RequestHandler m_requestHandler;
-    };
-}
-
-#define HTTP_STATS_INSTANTIATE(...)\
-{\
-    auto listen_host = statsEntryConfig.getParam<std::string>("listen_host");\
-    if(!listen_host)\
-    {\
-        std::ostringstream oss;\
-        oss << "Host for export " << statsEntryConfig.name << " not specified!";\
-        throw Exception(oss.str());\
-    }\
-    auto listen_port = statsEntryConfig.getParam<unsigned short>("listen_port");\
-    if(!listen_port)\
-    {\
-        std::ostringstream oss;\
-        oss << "Port for export " << statsEntryConfig.name << " not specified!";\
-        throw Exception(oss.str());\
-    }\
-    return std::make_unique<iqlogger::stats::http::Server>(listen_host.value(), listen_port.value());\
-}
-
-
+  boost::asio::io_service m_io_service;
+  boost::asio::ip::tcp::acceptor m_acceptor;
+  ConnectionManager m_connectionManager;
+  RequestHandler m_requestHandler;
+};
+}  // namespace iqlogger::stats::http
