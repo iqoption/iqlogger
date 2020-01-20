@@ -10,6 +10,3 @@
 
 using namespace iqlogger;
 using namespace iqlogger::inputs;
-
-
-

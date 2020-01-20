@@ -12,24 +12,20 @@
 
 namespace iqlogger::stats::http {
 
-    struct Reply;
-    struct Request;
+struct Reply;
+struct Request;
 
-    class RequestHandler
-    {
-    public:
+class RequestHandler
+{
+public:
+  RequestHandler(const RequestHandler&) = delete;
+  RequestHandler& operator=(const RequestHandler&) = delete;
 
-        RequestHandler(const RequestHandler&) = delete;
-        RequestHandler& operator=(const RequestHandler&) = delete;
+  explicit RequestHandler();
 
-        explicit RequestHandler();
+  void handle_request(const Request& req, Reply& rep);
 
-        void handle_request(const Request& req, Reply& rep);
-
-    private:
-
-        static bool url_decode(const std::string& in, std::string& out);
-    };
-}
-
-
+private:
+  static bool url_decode(const std::string& in, std::string& out);
+};
+}  // namespace iqlogger::stats::http

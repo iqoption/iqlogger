@@ -7,25 +7,23 @@
 //
 #pragma once
 
-#include <inputs/IOInput.h>
 #include "Server.h"
+#include <inputs/IOInput.h>
 
 namespace iqlogger::inputs::json::tcp {
 
-    class JsonInput : public IOInput<Json> {
+class JsonInput : public IOInput<Json>
+{
+public:
+  explicit JsonInput(const config::SourceConfig& sourceConfig);
+  virtual ~JsonInput();
 
-        std::shared_ptr<Server> m_serverPtr;
-        unsigned short m_port;
+protected:
+  void startImpl() override;
 
-    public:
+private:
+  std::shared_ptr<Server> m_serverPtr;
+  unsigned short m_port;
+};
 
-        explicit JsonInput(const config::SourceConfig& sourceConfig);
-        virtual ~JsonInput();
-        void start() override;
-//        void restart() override;
-
-    };
-
-}
-
-
+}  // namespace iqlogger::inputs::json::tcp

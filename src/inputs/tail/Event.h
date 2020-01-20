@@ -15,67 +15,50 @@
 
 namespace iqlogger::inputs::tail {
 
-    using fd_t = int;
+using fd_t = int;
 
-    struct Event
-    {
-        enum class EventType
-        {
-            UNKNOWN,
-            _INIT,
-            CREATE,
-            MODIFY,
-            MOVE,
-            DELETE
-        };
+struct Event {
+  enum class EventType
+  {
+    UNKNOWN,
+    _INIT,
+    CREATE,
+    MODIFY,
+    MOVE,
+    DELETE
+  };
 
-        fd_t m_watchDescriptor;
-        EventType m_eventType;
-        std::string m_filename;
+  fd_t m_watchDescriptor;
+  EventType m_eventType;
+  std::string m_filename;
 
-        template<typename T>
-        explicit Event(fd_t wd, EventType event, T&& filename) :
-                m_watchDescriptor(wd),
-                m_eventType(event),
-                m_filename(std::forward<std::string>(filename))
-        {
-            TRACE("Event::Event()");
-        }
+  template<typename T>
+  explicit Event(fd_t wd, EventType event, T&& filename) :
+      m_watchDescriptor(wd),
+      m_eventType(event),
+      m_filename(std::forward<std::string>(filename)) {
+    TRACE("Event::Event()");
+  }
 
-        ~Event()
-        {
-            TRACE("Event::~Event()");
-        }
+  ~Event() { TRACE("Event::~Event()"); }
 
-    private:
+private:
+  static constexpr std::pair<EventType, frozen::string> s_event_to_name_map[]{
+      {EventType::UNKNOWN, "UNDEFINED"}, {EventType::_INIT, "_INIT"}, {EventType::CREATE, "CREATE"},
+      {EventType::MODIFY, "MODIFY"},     {EventType::MOVE, "MOVE"},   {EventType::DELETE, "DELETE"},
+  };
 
-        static constexpr std::pair<EventType, frozen::string> s_event_to_name_map[]
-        {
-            {EventType::UNKNOWN,    "UNDEFINED"},
-            {EventType::_INIT,      "_INIT"},
-            {EventType::CREATE,     "CREATE"},
-            {EventType::MODIFY,     "MODIFY"},
-            {EventType::MOVE,       "MOVE"},
-            {EventType::DELETE,     "DELETE"},
-        };
+  static constexpr auto event_to_str_map = frozen::make_unordered_map(s_event_to_name_map);
 
-        static constexpr auto event_to_str_map = frozen::make_unordered_map(s_event_to_name_map);
+public:
+  static constexpr frozen::string event_to_str(EventType type) { return event_to_str_map.at(type); }
+};
 
-    public:
+using event_t = Event::EventType;
+using EventPtr = std::unique_ptr<Event>;
 
-        static constexpr frozen::string event_to_str(EventType type)
-        {
-            return event_to_str_map.at(type);
-        }
-    };
+using notifier_t = std::function<void(EventPtr)>;
 
-    using event_t = Event::EventType;
-    using EventPtr = std::unique_ptr<Event>;
+}  // namespace iqlogger::inputs::tail
 
-    using notifier_t = std::function<void(EventPtr)>;
-
-}
-
-std::ostream& operator<< (std::ostream& os, const iqlogger::inputs::tail::event_t event);
-
-
+std::ostream& operator<<(std::ostream& os, const iqlogger::inputs::tail::event_t event);

@@ -10,13 +10,12 @@
 
 #include <MessageQueue.h>
 
-namespace iqlogger
+namespace iqlogger {
+class MainMessageQueue : public UniqueMessageQueue, public Singleton<MainMessageQueue>
 {
-    class MainMessageQueue : public UniqueMessageQueue , public Singleton<MainMessageQueue> {
+  friend class Singleton<MainMessageQueue>;
+  explicit MainMessageQueue() : UniqueMessageQueue("main_queue") {}
+};
 
-        friend class Singleton<MainMessageQueue>;
-        explicit MainMessageQueue() : UniqueMessageQueue("main_queue") {}
-    };
-
-    using MainMessageQueuePtr = std::shared_ptr<MainMessageQueue>;
+using MainMessageQueuePtr = std::shared_ptr<MainMessageQueue>;
 }

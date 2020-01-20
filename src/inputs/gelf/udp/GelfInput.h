@@ -8,31 +8,28 @@
 
 #pragma once
 
-#include <inputs/IOInput.h>
 #include "Server.h"
+#include <inputs/IOInput.h>
 
 namespace iqlogger::inputs::gelf::udp {
 
-    class GelfInput : public IOInput<Gelf> {
+class GelfInput : public IOInput<Gelf>
+{
+public:
+  explicit GelfInput(const config::SourceConfig& sourceConfig);
 
-        std::shared_ptr<Server> m_serverPtr;
-        ChunkQueuePtr m_chunkQueuePtr;
-        std::thread m_chunkProcessThread;
-        std::atomic<uint64_t> m_bad_chunks;
-        unsigned short m_chunk_ttl;
-        unsigned short m_port;
+  virtual ~GelfInput();
 
-    public:
+protected:
+  void startImpl() override;
+  void stopImpl() override;
 
-        explicit GelfInput(const config::SourceConfig& sourceConfig);
-
-        virtual ~GelfInput();
-
-        virtual void start() override;
-        virtual void stop() override;
-//        void restart() override;
-
-    };
-}
-
-
+private:
+  std::shared_ptr<Server> m_serverPtr;
+  ChunkQueuePtr m_chunkQueuePtr;
+  std::thread m_chunkProcessThread;
+  std::atomic<uint64_t> m_bad_chunks;
+  unsigned short m_chunk_ttl;
+  unsigned short m_port;
+};
+}  // namespace iqlogger::inputs::gelf::udp

@@ -8,24 +8,24 @@
 
 #pragma once
 
-#include "inputs/IOInput.h"
 #include "JournalInput.h"
 #include "JournalReader.h"
+#include "inputs/IOInput.h"
 
 namespace iqlogger::inputs::journal {
 
-    class JournalInput : public IOInput<Journal> {
+class JournalInput : public IOInput<Journal>
+{
+public:
+  explicit JournalInput(const config::SourceConfig& sourceConfig);
+  virtual ~JournalInput();
 
-        JournalReaderPtr m_readerPtr;
+protected:
 
-    public:
+  void startImpl() override;
+  void stopImpl() override;
 
-        explicit JournalInput(const config::SourceConfig& sourceConfig);
-        virtual ~JournalInput();
-
-        virtual void start() override;
-        virtual void stop() override;
-    };
-}
-
-
+private:
+  JournalReaderPtr m_readerPtr;
+};
+}  // namespace iqlogger::inputs::journal

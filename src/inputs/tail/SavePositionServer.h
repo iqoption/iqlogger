@@ -12,46 +12,42 @@
 
 #include <tbb/concurrent_hash_map.h>
 
-#include "core/Singleton.h"
-#include "core/Log.h"
-#include "core/TaskInterface.h"
 #include "Tail.h"
+#include "core/Log.h"
+#include "core/Singleton.h"
+#include "core/TaskInterface.h"
 
 namespace iqlogger::inputs::tail {
 
-    class SavePositionServer : public Singleton<SavePositionServer>, public TaskInterface {
+class SavePositionServer : public Singleton<SavePositionServer>, public TaskInterface
+{
+  friend class Singleton<SavePositionServer>;
+  using SavedPointersTableInternal = tbb::concurrent_hash_map<std::string, Position>;
 
-        constexpr static frozen::string data_dir = "/var/lib/iqlogger";
+public:
+  virtual ~SavePositionServer();
 
-        using SavedPointersTableInternal = tbb::concurrent_hash_map<std::string, Position>;
+  Position getSavedPosition(const std::string& filename);
+  void savePosition(const std::string& filename, Position position);
+  void erasePosition(const std::string& filename);
 
-        friend class Singleton<SavePositionServer>;
+protected:
+  void initImpl(std::any) override;
+  void startImpl() override;
+  void stopImpl() override;
 
-        SavePositionServer();
+private:
 
-        std::once_flag m_started_flag;
-        std::once_flag m_stopped_flag;
+  SavePositionServer();
 
-        SavedPointersTableInternal m_savedPointersTableInternal;
+  Position getCurrentSavedPositionFromFile(const std::string& filename);
 
-        void init();
-        Position getCurrentSavedPositionFromFile(const std::string& filename);
+  std::string getSavedPathByFileName(std::string_view filename);
 
-        std::string getSavedPathByFileName(std::string_view filename);
+private:
 
-    public:
+  SavedPointersTableInternal m_savedPointersTableInternal;
 
-        virtual ~SavePositionServer();
-
-        virtual void start() override;
-        virtual void stop() override;
-
-        Position getSavedPosition(const std::string& filename);
-        void savePosition(const std::string& filename, Position position);
-        void erasePosition(const std::string& filename);
-    };
-}
-
-
-
-
+  constexpr static frozen::string data_dir = "/var/lib/iqlogger";
+};
+}  // namespace iqlogger::inputs::tail

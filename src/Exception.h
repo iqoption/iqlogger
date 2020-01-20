@@ -12,8 +12,8 @@
 
 namespace iqlogger {
 
-    class Exception : public std::logic_error {
-        using std::logic_error::logic_error;
-    };
-}
-
+class Exception : public std::logic_error
+{
+  using std::logic_error::logic_error;
+};
+}  // namespace iqlogger

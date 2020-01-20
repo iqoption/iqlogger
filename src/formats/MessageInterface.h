@@ -8,26 +8,23 @@
 
 #pragma once
 
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 
 namespace iqlogger::formats {
 
-    class MessageInterface {
+class MessageInterface
+{
+public:
+  MessageInterface() noexcept = default;
+  MessageInterface(MessageInterface&&) noexcept = default;
 
-    public:
+  MessageInterface(const MessageInterface&) = delete;
+  MessageInterface& operator=(const MessageInterface&) = delete;
 
-        MessageInterface() noexcept = default;
-        MessageInterface(MessageInterface&&) noexcept = default;
+  virtual std::string exportMessage() const = 0;
+  virtual std::string exportMessage2Json() const = 0;
 
-        MessageInterface(const MessageInterface&) = delete;
-        MessageInterface& operator=(const MessageInterface&) = delete;
-
-        virtual std::string exportMessage() const = 0;
-        virtual std::string exportMessage2Json() const = 0;
-
-        virtual ~MessageInterface() = default;
-    };
-}
-
-
+  virtual ~MessageInterface() = default;
+};
+}  // namespace iqlogger::formats

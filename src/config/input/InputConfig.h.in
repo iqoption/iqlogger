@@ -8,172 +8,138 @@
 
 #pragma once
 
-#cmakedefine IQLOGGER_WITH_PROCESSOR
-
 #include <optional>
 #include <variant>
+
+#include "Defines.h"
 #include "config/ConfigInterface.h"
 #include "config/core/QueueOverflowStrategy.h"
+#include "utils/TypeTraits.h"
 
 namespace iqlogger::config {
 
-    enum class InputType {
-        UNDEFINED   = 0@IQLOGGER_INPUT_TYPES@
-    };
+enum class InputType
+{
+  UNDEFINED = 0 @IQLOGGER_INPUT_TYPES@
+};
 
 #ifdef IQLOGGER_WITH_PROCESSOR
-    struct ProcessorScript {
-        std::string source;
-        ProcessorScript() noexcept = default;
-        bool check() const;
-        bool loadFromFile(const std::string& filename);
-        bool empty() const;
-    };
+struct ProcessorScript {
+  std::string source;
+  ProcessorScript() noexcept = default;
+  bool check() const;
+  bool loadFromFile(const std::string& filename);
+  bool empty() const;
+};
 #endif
 
-    struct SourceConfig;
+struct SourceConfig;
 
-    template <InputType I>
-    struct SourceConfigCheckImpl
-    {
-        bool operator()(const SourceConfig& sourceConfig) const;
-    };
+template<InputType I>
+struct SourceConfigCheckImpl {
+  bool operator()(const SourceConfig& sourceConfig) const;
+};
 
-    // @TODO (!!!)
-    using SourceConfigCheckT = std::variant<SourceConfigCheckImpl<InputType::UNDEFINED>, SourceConfigCheckImpl<InputType::GELF>, SourceConfigCheckImpl<InputType::TAIL>, SourceConfigCheckImpl<InputType::JOURNAL>, SourceConfigCheckImpl<InputType::JSON>, SourceConfigCheckImpl<InputType::DUMMY>>;
+template<InputType... Inputs>
+using SourceConfigCheckTypes = std::variant<SourceConfigCheckImpl<Inputs>...>;
 
-    struct SourceConfig : public ConfigInterface {
+using SourceConfigCheckT = SourceConfigCheckTypes<InputType::UNDEFINED, @IQLOGGER_INPUT_TYPE_LIST@>;
 
-        InputType                       type                = InputType::UNDEFINED;
-        std::string                     name;
-        size_t                          threads             = 1;
+struct SourceConfig : public ConfigInterface {
+  InputType type = InputType::UNDEFINED;
+  std::string name;
+  size_t threads = 1;
 #ifdef IQLOGGER_WITH_PROCESSOR
-        std::optional<ProcessorScript>  processor;
+  std::optional<ProcessorScript> processor;
 #endif
-        std::unordered_map<std::string, json> params;
+  std::unordered_map<std::string, json> params;
 
-        size_t                          max_queue_size      = 10'000;
-        config::QueueOverflowStrategy   overflow_stategy    = config::QueueOverflowStrategy::THROTTLE;
+  std::size_t max_queue_size = 10'000;
+  config::QueueOverflowStrategy::Type overflow_strategy = config::QueueOverflowStrategy::Type::THROTTLE;
 
-        template<class T>
-        std::optional<T> getParam(const std::string &key) const {
-            try {
-                return params.at(key).get<T>();
-            }
-            catch (const std::exception& e) {
-                return std::nullopt;
-            }
-        }
-
-        bool check() const override;
-
-    private:
-
-        static constexpr std::pair<InputType, frozen::string> s_input_type_to_str_map[]
-        {
-            {InputType::UNDEFINED, "undefined"}@IQLOGGER_INPUT_TYPE_MAP@
-        };
-
-        static constexpr auto input_type_to_str_map = frozen::make_unordered_map(s_input_type_to_str_map);
-
-        static constexpr std::pair<frozen::string, InputType> s_input_type_from_str_map[]
-        {
-            {"undefined",   InputType::UNDEFINED}@IQLOGGER_INPUT_TYPE_MAP_@
-        };
-
-        static constexpr auto input_type_from_str_map = frozen::make_unordered_map(s_input_type_from_str_map);
-
-        SourceConfigCheckT m_checker = SourceConfigCheckImpl<InputType::UNDEFINED>();
-
-    public:
-
-        static constexpr frozen::string input_type_to_str(InputType t)
-        {
-            return input_type_to_str_map.at(t);
-        }
-
-        static constexpr InputType input_type_from_str(frozen::string const& name)
-        {
-            return input_type_from_str_map.at(name);
-        }
-
-        // @TODO (!!!)
-        void setChecker()
-        {
-            switch(type)
-            {
-                case InputType::GELF :
-                    m_checker = SourceConfigCheckImpl<InputType::GELF>();
-                    break;
-
-                case InputType::TAIL :
-                    m_checker = SourceConfigCheckImpl<InputType::TAIL>();
-                    break;
-
-                case InputType::JOURNAL :
-                    m_checker = SourceConfigCheckImpl<InputType::JOURNAL>();
-                    break;
-
-                case InputType::JSON :
-                    m_checker = SourceConfigCheckImpl<InputType::JSON>();
-                    break;
-
-                case InputType::DUMMY :
-                    m_checker = SourceConfigCheckImpl<InputType::DUMMY>();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    };
-
-    struct InputConfig : public ConfigInterface {
-
-        size_t threads  = 1;
-
-        std::vector<SourceConfig> sourceConfigs;
-
-        InputConfig() noexcept = default;
-
-        bool check() const override;
-    };
-
-    inline void from_json(const json& j, InputType& t)
-    {
-        try
-        {
-            const auto str = j.get<std::string>();
-            t = SourceConfig::input_type_from_str(frozen::string(str.data(), str.size()));
-        }
-        catch(const json::exception& e)
-        {
-            t = InputType::UNDEFINED;
-        }
+  template<class T>
+  std::optional<T> getParam(const std::string& key) const {
+    try {
+      return params.at(key).get<T>();
+    } catch (const std::exception& e) {
+      return std::nullopt;
     }
+  }
+
+  bool check() const override;
+
+private:
+  static constexpr std::pair<InputType, frozen::string> s_input_type_to_str_map[] {
+    { InputType::UNDEFINED, "undefined" }
+    @IQLOGGER_INPUT_TYPE_MAP@
+  };
+
+  static constexpr auto input_type_to_str_map = frozen::make_unordered_map(s_input_type_to_str_map);
+
+  static constexpr std::pair<frozen::string, InputType> s_input_type_from_str_map[] {
+    { "undefined", InputType::UNDEFINED }
+    @IQLOGGER_INPUT_TYPE_MAP_@
+  };
+
+  static constexpr auto input_type_from_str_map = frozen::make_unordered_map(s_input_type_from_str_map);
+
+  SourceConfigCheckT m_checker = SourceConfigCheckImpl<InputType::UNDEFINED>();
+
+public:
+  static constexpr frozen::string input_type_to_str(InputType t) { return input_type_to_str_map.at(t); }
+
+  static constexpr InputType input_type_from_str(frozen::string const& name) {
+    return input_type_from_str_map.at(name);
+  }
+
+  void setChecker() { setCheckerImpl<@IQLOGGER_INPUT_TYPE_LIST@>(); }
+
+  template<InputType... Inputs>
+  void setCheckerImpl() {
+    auto checker = utils::types::make_switch(
+        []() {}, std::make_pair(Inputs, [this]() { m_checker = SourceConfigCheckImpl<Inputs>(); })...);
+    checker(type);
+  }
+};
+
+struct InputConfig : public ConfigInterface {
+  size_t threads = 1;
+
+  std::vector<SourceConfig> sourceConfigs;
+
+  InputConfig() noexcept = default;
+
+  bool check() const override;
+};
+
+inline void from_json(const json& j, InputType& t) {
+  try {
+    const auto str = j.get<std::string>();
+    t = SourceConfig::input_type_from_str(frozen::string(str.data(), str.size()));
+  } catch (const json::exception& e) {
+    t = InputType::UNDEFINED;
+  }
 }
+}  // namespace iqlogger::config
 
 namespace nlohmann {
 
-    template <>
-    struct adl_serializer<iqlogger::config::InputConfig>
-    {
-        static void from_json(const json& j, iqlogger::config::InputConfig& inputConfig);
-    };
+template<>
+struct adl_serializer<iqlogger::config::InputConfig> {
+  static void from_json(const json& j, iqlogger::config::InputConfig& inputConfig);
+};
 
-    template <>
-    struct adl_serializer<iqlogger::config::SourceConfig>
-    {
-        static void from_json(const json& j, iqlogger::config::SourceConfig& sourceConfig);
-    };
+template<>
+struct adl_serializer<iqlogger::config::SourceConfig> {
+  static void from_json(const json& j, iqlogger::config::SourceConfig& sourceConfig);
+};
 
 #ifdef IQLOGGER_WITH_PROCESSOR
-    template <>
-    struct adl_serializer<iqlogger::config::ProcessorScript>
-    {
-        static void from_json(const json& j, iqlogger::config::ProcessorScript& processorScript);
-    };
+template<>
+struct adl_serializer<iqlogger::config::ProcessorScript> {
+  static void from_json(const json& j, iqlogger::config::ProcessorScript& processorScript);
+};
 #endif
-}
+}  // namespace nlohmann
 
-std::ostream& operator<< (std::ostream& os, iqlogger::config::InputType type);
+std::ostream& operator<<(std::ostream& os, iqlogger::config::InputType type);

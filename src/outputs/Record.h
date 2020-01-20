@@ -16,46 +16,36 @@
 
 namespace iqlogger::outputs {
 
-    template<class T>
-    class Record;
+template<class T>
+class Record;
 
-    template<class T>
-    using RecordPtr = std::unique_ptr<Record<T>>;
+template<class T>
+using RecordPtr = std::unique_ptr<Record<T>>;
 
-    template<class T>
-    class Record {
+template<class T>
+class Record
+{
+  using DataRecordT = typename T::DataT;
+  using MessageT = typename T::MessageT;
+  using DataExportT = typename T::DataExportT;
 
-        using DataRecordT   = typename T::DataT;
-        using MessageT      = typename T::MessageT;
-        using DataExportT   = typename T::DataExportT;
+  DataRecordT m_data;
 
-        DataRecordT m_data;
+public:
+  template<class U>
+  explicit Record(const U& data);
 
-    public:
+  ~Record() { TRACE("outputs::Record::~Record()"); }
 
-        template <class U>
-        explicit Record(const U& data);
+  Record(const Record&) = delete;
+  Record& operator=(const Record&) = delete;
 
-        ~Record()
-        {
-            TRACE("outputs::Record::~Record()");
-        }
+  DataExportT exportRecord() const { return m_data; }
+};
 
-        Record(const Record&) = delete;
-        Record& operator =(const Record&) = delete;
+template<class T>
+using RecordQueue = MessageQueue<RecordPtr<T>>;
 
-        DataExportT exportRecord() const
-        {
-            return m_data;
-        }
-    };
-
-    template<class T>
-    using RecordQueue       = MessageQueue<RecordPtr<T>>;
-
-    template<class T>
-    using RecordQueuePtr    = std::shared_ptr<RecordQueue<T>>;
-}
-
-
-
+template<class T>
+using RecordQueuePtr = std::shared_ptr<RecordQueue<T>>;
+}  // namespace iqlogger::outputs

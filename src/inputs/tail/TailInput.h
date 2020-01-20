@@ -10,41 +10,41 @@
 
 #include <filesystem>
 
-#include "inputs/Input.h"
-#include "TailMonitor.h"
 #include "Tail.h"
+#include "TailMonitor.h"
+#include "inputs/Input.h"
 
 namespace iqlogger::inputs::tail {
 
-    class TailInput : public Input<Tail> {
+class TailInput : public Input<Tail>
+{
+  enum class DelimiterType
+  {
+    NEWLINE = 0,
+    REGEX = 1
+  };
 
-        enum class DelimiterType {
-            NEWLINE   = 0,
-            REGEX     = 1
-        };
+public:
+  explicit TailInput(const config::SourceConfig& sourceConfig);
+  virtual ~TailInput();
 
-        constexpr static unsigned short default_read_timeout        = 10;
-        constexpr static bool           default_follow_only_mode    = false;
+protected:
 
-        std::string m_path;
+  void startImpl() override;
+  void stopImpl() override;
 
-        DelimiterType m_delimiterType;
+private:
+  std::string m_path;
 
-        unsigned short m_read_timeout;
+  DelimiterType m_delimiterType;
 
-        TailMonitorPtr m_monitorPtr;
+  unsigned short m_read_timeout;
 
-        std::thread m_timerThread;
+  TailMonitorPtr m_monitorPtr;
 
-    public:
+  std::thread m_timerThread;
 
-        explicit TailInput(const config::SourceConfig& sourceConfig);
-        virtual ~TailInput();
-
-        virtual void start() override;
-        virtual void stop() override;
-
-    };
-}
-
-
+  constexpr static unsigned short default_read_timeout = 10;
+  constexpr static bool default_follow_only_mode = false;
+};
+}  // namespace iqlogger::inputs::tail

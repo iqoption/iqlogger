@@ -14,24 +14,21 @@
 
 namespace iqlogger::stats::http {
 
-    class ConnectionManager
-    {
-    public:
-        ConnectionManager(const ConnectionManager&) = delete;
-        ConnectionManager& operator=(const ConnectionManager&) = delete;
+class ConnectionManager
+{
+public:
+  ConnectionManager(const ConnectionManager&) = delete;
+  ConnectionManager& operator=(const ConnectionManager&) = delete;
 
-        ConnectionManager();
+  ConnectionManager();
 
-        void start(ConnectionPtr c);
+  void start(ConnectionPtr c);
 
-        void stop(ConnectionPtr c);
+  void stop(ConnectionPtr c);
 
-        void stop_all();
+  void stop_all();
 
-    private:
-
-      std::set<ConnectionPtr> m_connections;
-
-    };
-}
-
+private:
+  std::set<ConnectionPtr> m_connections;
+};
+}  // namespace iqlogger::stats::http

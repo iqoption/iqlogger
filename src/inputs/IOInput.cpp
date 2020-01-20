@@ -9,4 +9,3 @@
 #include "IOInput.h"
 
 using namespace iqlogger::inputs;
-

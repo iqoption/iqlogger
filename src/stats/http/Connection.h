@@ -8,9 +8,9 @@
 
 #pragma once
 
+#include <boost/asio.hpp>
 #include <array>
 #include <memory>
-#include <boost/asio.hpp>
 
 #include "Reply.h"
 #include "Request.h"
@@ -19,46 +19,41 @@
 
 namespace iqlogger::stats::http {
 
-    class ConnectionManager;
+class ConnectionManager;
 
-    class Connection : public std::enable_shared_from_this<Connection>
-    {
-    public:
+class Connection : public std::enable_shared_from_this<Connection>
+{
+public:
+  Connection(const Connection&) = delete;
+  Connection& operator=(const Connection&) = delete;
 
-        Connection(const Connection&) = delete;
-        Connection& operator=(const Connection&) = delete;
+  explicit Connection(boost::asio::io_service& io_service, ConnectionManager& manager, RequestHandler& handler);
 
-        explicit Connection(boost::asio::io_service &io_service, ConnectionManager& manager, RequestHandler& handler);
+  void start();
 
-        void start();
+  void stop();
 
-        void stop();
+  boost::asio::ip::tcp::socket& socket() { return m_socket; }
 
-        boost::asio::ip::tcp::socket &socket() {
-            return m_socket;
-        }
+private:
+  void do_read();
 
-    private:
+  void do_write();
 
-        void do_read();
+  boost::asio::ip::tcp::socket m_socket;
 
-        void do_write();
+  ConnectionManager& m_connectionManager;
 
-        boost::asio::ip::tcp::socket m_socket;
+  RequestHandler& m_requestHandler;
 
-        ConnectionManager& m_connectionManager;
+  std::array<char, 8192> m_buffer;
 
-        RequestHandler& m_requestHandler;
+  Request m_request;
 
-        std::array<char, 8192> m_buffer;
+  RequestParser m_request_parser;
 
-        Request m_request;
+  Reply m_reply;
+};
 
-        RequestParser m_request_parser;
-
-        Reply m_reply;
-    };
-
-    using ConnectionPtr = std::shared_ptr<Connection>;
-}
-
+using ConnectionPtr = std::shared_ptr<Connection>;
+}  // namespace iqlogger::stats::http

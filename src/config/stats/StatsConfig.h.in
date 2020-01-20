@@ -9,99 +9,75 @@
 #pragma once
 
 #include "config/ConfigInterface.h"
+#include "utils/Enum.h"
 
 namespace iqlogger::config {
 
-    enum class StatsEntryType {
-        UNDEFINED   = 0@IQLOGGER_STATS_TYPES@
-    };
+CREATE_ENUM(StatsEntryType, stats_entry_type_count, stats_entry_t, (UNDEFINED) @IQLOGGER_STATS_TYPES@);
 
-    struct StatsEntryConfig : public ConfigInterface {
+struct StatsEntryConfig : public ConfigInterface {
+  std::string name;
+  StatsEntryType type;
+  std::unordered_map<std::string, json> params;
 
-        std::string                             name;
-        StatsEntryType                          type;
-        std::unordered_map<std::string, json>   params;
-
-        template<class T>
-        std::optional<T> getParam(const std::string& key) const
-        {
-            try
-            {
-                return params.at(key).get<T>();
-            }
-            catch(const std::exception& e)
-            {
-                return std::nullopt;
-            }
-        }
-
-        StatsEntryConfig() noexcept = default;
-
-    private:
-
-        static constexpr std::pair<StatsEntryType, frozen::string> s_stats_entry_type_to_str_map[]
-        {
-            {StatsEntryType::UNDEFINED, "undefined"}@IQLOGGER_STATS_TYPE_MAP@
-        };
-
-        static constexpr auto stats_entry_type_to_str_map = frozen::make_unordered_map(s_stats_entry_type_to_str_map);
-
-        static constexpr std::pair<frozen::string, StatsEntryType> s_stats_entry_type_from_str_map[]
-        {
-            {"undefined",   StatsEntryType::UNDEFINED}@IQLOGGER_STATS_TYPE_MAP_@
-        };
-
-        static constexpr auto stats_entry_type_from_str_map = frozen::make_unordered_map(s_stats_entry_type_from_str_map);
-
-    public:
-
-        static constexpr frozen::string stats_type_to_str(StatsEntryType t)
-        {
-            return stats_entry_type_to_str_map.at(t);
-        }
-
-        static constexpr StatsEntryType stats_entry_type_from_str(frozen::string const& name)
-        {
-            return stats_entry_type_from_str_map.at(name);
-        }
-    };
-
-    struct StatsConfig : public ConfigInterface {
-
-        size_t                          interval;
-        std::vector<StatsEntryConfig>   exportConfigs;
-
-        StatsConfig() noexcept = default;
-    };
-
-    inline void from_json(const json& j, StatsEntryType& t)
-    {
-        try
-        {
-            const auto str = j.get<std::string>();
-            t = StatsEntryConfig::stats_entry_type_from_str(frozen::string(str.data(), str.size()));
-        }
-        catch(const json::exception& e)
-        {
-            t = StatsEntryType::UNDEFINED;
-        }
+  template<class T>
+  std::optional<T> getParam(const std::string& key) const {
+    try {
+      return params.at(key).get<T>();
+    } catch (const std::exception& e) {
+      return std::nullopt;
     }
+  }
+
+  StatsEntryConfig() noexcept = default;
+
+private:
+  static constexpr frozen::unordered_map<StatsEntryType, frozen::string, stats_entry_type_count>
+      stats_entry_type_to_str_map = {
+        {StatsEntryType::UNDEFINED, "undefined"} @IQLOGGER_STATS_TYPE_MAP@
+      };
+
+  static constexpr frozen::unordered_map<frozen::string, StatsEntryType, stats_entry_type_count>
+      stats_entry_type_from_str_map = {
+        {"undefined", StatsEntryType::UNDEFINED} @IQLOGGER_STATS_TYPE_MAP_@
+      };
+
+public:
+  static constexpr frozen::string stats_type_to_str(StatsEntryType t) { return stats_entry_type_to_str_map.at(t); }
+
+  static constexpr StatsEntryType stats_entry_type_from_str(frozen::string const& name) {
+    return stats_entry_type_from_str_map.at(name);
+  }
+};
+
+struct StatsConfig : public ConfigInterface {
+  size_t interval;
+  std::vector<StatsEntryConfig> exportConfigs;
+
+  StatsConfig() noexcept = default;
+};
+
+inline void from_json(const json& j, StatsEntryType& t) {
+  try {
+    const auto str = j.get<std::string>();
+    t = StatsEntryConfig::stats_entry_type_from_str(frozen::string(str.data(), str.size()));
+  } catch (const json::exception& e) {
+    t = StatsEntryType::UNDEFINED;
+  }
 }
+}  // namespace iqlogger::config
 
 namespace nlohmann {
 
-    template <>
-    struct adl_serializer<iqlogger::config::StatsConfig>
-    {
-        static void from_json(const json& j, iqlogger::config::StatsConfig& statsConfig);
-    };
+template<>
+struct adl_serializer<iqlogger::config::StatsConfig> {
+  static void from_json(const json& j, iqlogger::config::StatsConfig& statsConfig);
+};
 
-    template <>
-    struct adl_serializer<iqlogger::config::StatsEntryConfig>
-    {
-        static void from_json(const json& j, iqlogger::config::StatsEntryConfig& statsEntryConfig);
-    };
-}
+template<>
+struct adl_serializer<iqlogger::config::StatsEntryConfig> {
+  static void from_json(const json& j, iqlogger::config::StatsEntryConfig& statsEntryConfig);
+};
+}  // namespace nlohmann
 
-std::ostream& operator<< (std::ostream& os, iqlogger::config::StatsEntryType type);
-
+std::ostream& operator<<(std::ostream& os, iqlogger::config::StatsEntryType type);

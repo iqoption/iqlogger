@@ -13,26 +13,20 @@
 
 namespace iqlogger::outputs::gelf::tcp {
 
-    class GelfOutput : public Output<Gelf> {
+class GelfOutput : public Output<Gelf>
+{
+public:
+  explicit GelfOutput(config::DestinationConfig destinationConfig,
+                      metrics::atomic_metric_t& total_outputs_send_counter);
 
-    public:
+protected:
+  void startImpl() override;
+  void stopImpl() override;
 
-        explicit GelfOutput(config::DestinationConfig destinationConfig, metrics::atomic_metric_t& total_outputs_send_counter);
+private:
+  unsigned short m_port;
+  std::vector<std::string> m_upstreams;
+  std::function<void(std::string const&)> m_outputThreadCallback;
+};
 
-        virtual void start() override;
-        virtual void stop() override;
-//        virtual void restart() override;
-
-    private:
-
-        unsigned short                          m_port;
-        std::vector<std::string>                m_upstreams;
-        std::function<void(std::string const&)> m_outputThreadCallback;
-
-        std::size_t                             m_outputBufferSize;
-        std::size_t                             m_maxMessageSize;
-
-    };
-
-}
-
+}  // namespace iqlogger::outputs::gelf::tcp

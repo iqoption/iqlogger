@@ -8,67 +8,58 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
-
-#include <frozen/unordered_map.h>
+#include <chrono>
 #include <frozen/string.h>
+#include <frozen/unordered_map.h>
+#include <nlohmann/json.hpp>
 
 namespace iqlogger::config {
 
-    using nlohmann::json;
+using nlohmann::json;
 
-    enum class QueueOverflowStrategy {
-        UNDEFINED   = 0,
-        THROTTLE    = 1,
-        DROP        = 2
-    };
+class QueueOverflowStrategy
+{
+public:
+  enum class Type
+  {
+    UNDEFINED = 0,
+    THROTTLE = 1,
+    DROP = 2
+  };
 
-    class QueueOverflowStrategyMap
-    {
-        static constexpr std::pair<QueueOverflowStrategy, frozen::string> s_strategy_to_str_map[]
-        {
-            {QueueOverflowStrategy::UNDEFINED,  "undefined"},
-            {QueueOverflowStrategy::THROTTLE,   "throttle"},
-            {QueueOverflowStrategy::DROP,       "drop"},
-        };
+  static inline constexpr auto throttle_interval = std::chrono::milliseconds(100);
 
-        static constexpr auto strategy_to_str_map = frozen::make_unordered_map(s_strategy_to_str_map);
+private:
+  static constexpr std::pair<Type, frozen::string> s_strategy_to_str_map[]{
+      {Type::UNDEFINED, "undefined"},
+      {Type::THROTTLE, "throttle"},
+      {Type::DROP, "drop"},
+  };
 
-        static constexpr std::pair<frozen::string, QueueOverflowStrategy> s_strategy_from_str_map[]
-        {
-            {"undefined",   QueueOverflowStrategy::UNDEFINED},
-            {"throttle",    QueueOverflowStrategy::THROTTLE},
-            {"drop",        QueueOverflowStrategy::DROP},
-        };
+  static constexpr auto strategy_to_str_map = frozen::make_unordered_map(s_strategy_to_str_map);
 
-        static constexpr auto strategy_from_str_map = frozen::make_unordered_map(s_strategy_from_str_map);
+  static constexpr std::pair<frozen::string, Type> s_strategy_from_str_map[]{
+      {"undefined", Type::UNDEFINED},
+      {"throttle", Type::THROTTLE},
+      {"drop", Type::DROP},
+  };
 
-    public:
+  static constexpr auto strategy_from_str_map = frozen::make_unordered_map(s_strategy_from_str_map);
 
-        static constexpr frozen::string strategy_to_str(QueueOverflowStrategy p)
-        {
-            return strategy_to_str_map.at(p);
-        }
+public:
+  static constexpr frozen::string strategy_to_str(Type p) { return strategy_to_str_map.at(p); }
 
-        static constexpr QueueOverflowStrategy strategy_from_str(frozen::string const& name)
-        {
-            return strategy_from_str_map.at(name);
-        }
-    };
+  static constexpr Type strategy_from_str(frozen::string const& name) { return strategy_from_str_map.at(name); }
+};
 
-    inline void from_json(const json& j, QueueOverflowStrategy& strategy)
-    {
-        try
-        {
-            const auto str = j.get<std::string>();
-            strategy = QueueOverflowStrategyMap::strategy_from_str(frozen::string(str.data(), str.size()));
-        }
-        catch(const json::exception& e)
-        {
-            strategy = QueueOverflowStrategy::UNDEFINED;
-        }
-    }
+inline void from_json(const json& j, QueueOverflowStrategy::Type& strategy) {
+  try {
+    const auto str = j.get<std::string>();
+    strategy = QueueOverflowStrategy::strategy_from_str(frozen::string(str.data(), str.size()));
+  } catch (const json::exception& e) {
+    strategy = QueueOverflowStrategy::Type::UNDEFINED;
+  }
 }
+}  // namespace iqlogger::config
 
-std::ostream& operator<< (std::ostream& os, iqlogger::config::QueueOverflowStrategy strategy);
-
+std::ostream& operator<<(std::ostream& os, const iqlogger::config::QueueOverflowStrategy::Type& strategy);

@@ -10,44 +10,58 @@
 
 #include <memory>
 
+#include "MessageQueue.h"
 #include "config/Config.h"
 #include "core/TaskInterface.h"
-#include "MessageQueue.h"
 #include "metrics/Metrics.h"
 
 namespace iqlogger::outputs {
 
-    class OutputInterface;
-    using OutputPtr = std::unique_ptr<OutputInterface>;
+class OutputInterface;
+using OutputPtr = std::unique_ptr<OutputInterface>;
 
-    class OutputInterface : public TaskInterface {
+class OutputInterface : public TaskInterface
+{
+public:
+  using message_ptr_buffer_t = std::array<UniqueMessagePtr, max_queue_bulk_size>;
 
-    public:
+  explicit OutputInterface(config::DestinationConfig destinationConfig);
+  virtual ~OutputInterface() = default;
 
-        using message_ptr_buffer_t = std::array<UniqueMessagePtr, max_queue_bulk_size>;
+  static OutputPtr instantiate(const config::DestinationConfig& destinationConfig,
+                               iqlogger::metrics::atomic_metric_t& total_outputs_send_counter);
 
-        explicit OutputInterface(config::DestinationConfig destinationConfig);
-        virtual ~OutputInterface() = default;
+  virtual bool importMessages(message_ptr_buffer_t::const_iterator it, size_t count) const = 0;
 
-        static OutputPtr instantiate(config::DestinationConfig destinationConfig, iqlogger::metrics::atomic_metric_t& total_outputs_send_counter);
+protected:
 
-        virtual bool importMessages(message_ptr_buffer_t::const_iterator it, size_t count) const = 0;
+  void initImpl(std::any) override;
+  void stopImpl() override;
 
-        virtual void start() override;
-        virtual void stop() override;
+protected:
+  template<config::OutputType... Outputs>
+  static OutputPtr instantiateImpl(const config::DestinationConfig& destinationConfig,
+                                   iqlogger::metrics::atomic_metric_t& total_outputs_send_counter) {
+    auto checker = utils::types::make_switch(
+        [&]() -> OutputPtr {
+          std::stringstream oss;
+          oss << "Unknown type " << destinationConfig.type;
+          throw Exception(oss.str());
+        },
+        std::make_pair(Outputs,
+                       [&]() { return instantiateOutput<Outputs>(destinationConfig, total_outputs_send_counter); })...);
+    return checker(destinationConfig.type);
+  }
 
-    protected:
+  template<config::OutputType Output>
+  static OutputPtr instantiateOutput(const config::DestinationConfig& destinationConfig,
+                                     iqlogger::metrics::atomic_metric_t& total_outputs_send_counter);
 
-        std::string m_name;
-        config::OutputType m_type;
-
-        size_t m_thread_num;
-        std::vector<std::thread> m_threads;
-
-        boost::asio::io_service m_io_service;
-
-        std::chrono::seconds m_timeout;
-    };
-}
-
-
+  std::string m_name;
+  config::OutputType m_type;
+  size_t m_thread_num;
+  std::vector<std::thread> m_threads;
+  boost::asio::io_service m_io_service;
+  std::chrono::seconds m_timeout;
+};
+}  // namespace iqlogger::outputs

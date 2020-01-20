@@ -12,15 +12,12 @@
 
 namespace iqlogger::config {
 
-    struct ConfigInterface {
+struct ConfigInterface {
+  ConfigInterface() noexcept = default;
+  ConfigInterface(ConfigInterface const&) = default;
 
-        ConfigInterface() noexcept = default;
-        ConfigInterface(ConfigInterface const&) = default;
+  virtual ~ConfigInterface() = default;
 
-        virtual bool check() const
-        {
-            return true;
-        }
-    };
-}
-
+  virtual bool check() const { return true; }
+};
+}  // namespace iqlogger::config

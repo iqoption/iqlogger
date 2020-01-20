@@ -6,12 +6,6 @@
 //
 //
 
-#include <metrics/MetricsController.h>
-#include "Exception.h"
-#include "gelf/Output.h"
-
-
-#include "gelf/Output.h"
+#include "Output.h"
 
 using namespace iqlogger::outputs;
-

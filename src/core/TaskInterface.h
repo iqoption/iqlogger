@@ -8,43 +8,60 @@
 
 #pragma once
 
+#include <any>
 #include <atomic>
-#include <stdexcept>
 
 namespace iqlogger {
 
-    class TaskInterface {
+class TaskInterface
+{
+public:
+  TaskInterface() = default;
 
-    public:
+  virtual ~TaskInterface() = default;
 
-        TaskInterface() : m_stoped{false}, m_started(false) {};
-        virtual ~TaskInterface() {
-            if(isStarted())
-                stop();
-        };
+  virtual void init(std::any config) final {
+    if (!m_inited.exchange(true)) {
+      try {
+        initImpl(std::move(config));
+      } catch (const std::bad_any_cast& e) {
+        throw std::logic_error(e.what());
+      }
+    } else {
+      throw std::logic_error("Init already inited task!");
+    }
+  }
 
-        virtual void start() {
-            if(!isStarted()) m_started = true;
-            else throw std::logic_error("Start already started task!");
-        }
+  virtual void start() final {
+    if (!m_started.exchange(true)) {
+      if (isInited()) {
+        startImpl();
+      } else {
+        throw std::logic_error("Start not inited task!");
+      }
+    } else {
+      throw std::logic_error("Start already started task!");
+    }
+  }
 
-        virtual void stop() {
-            if(isStarted()) m_stoped = true;
-            else throw std::logic_error("Stop not started task!");
-        }
+  virtual void stop() final {
+    if (m_started.exchange(false)) {
+      stopImpl();
+    } else {
+      throw std::logic_error("Stop not started task!");
+    }
+  }
 
-        virtual bool isStopped() final {
-            return m_stoped.load();
-        }
+  virtual bool isInited() const final { return m_inited.load(); }
+  virtual bool isRunning() const final { return m_started.load(); }
 
-        virtual bool isStarted() final {
-            return m_started.load();
-        }
+protected:
+  virtual void initImpl(std::any config) = 0;
+  virtual void startImpl() = 0;
+  virtual void stopImpl() = 0;
 
-    private:
-
-        std::atomic_bool m_stoped;
-        std::atomic_bool m_started;
-
-    };
+private:
+  std::atomic_bool m_inited{false};
+  std::atomic_bool m_started{false};
+};
 }

@@ -12,15 +12,11 @@
 
 namespace iqlogger::inputs::journal {
 
-    class Journal {
-
-    public:
-
-        using RecordDataT   = iqlogger::formats::journal::JournalMessage;
-        using MessageT      = RecordDataT;
-        using SourceT       = MessageT::SourceT;
-    };
-}
-
-
-
+class Journal
+{
+public:
+  using RecordDataT = iqlogger::formats::journal::JournalMessage;
+  using MessageT = RecordDataT;
+  using SourceT = MessageT::SourceT;
+};
+}  // namespace iqlogger::inputs::journal

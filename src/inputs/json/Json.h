@@ -17,15 +17,11 @@
 
 namespace iqlogger::inputs::json {
 
-    class Json {
-
-    public:
-
-        using RecordDataT   = std::string;
-        using MessageT      = iqlogger::formats::json::JsonMessage;
-        using SourceT       = MessageT::SourceT;
-    };
-}
-
-
-
+class Json
+{
+public:
+  using RecordDataT = std::string;
+  using MessageT = iqlogger::formats::json::JsonMessage;
+  using SourceT = MessageT::SourceT;
+};
+}  // namespace iqlogger::inputs::json

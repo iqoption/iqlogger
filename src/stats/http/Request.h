@@ -13,16 +13,12 @@
 
 #include "Header.h"
 
-namespace iqlogger::stats::http
-{
-    struct Request
-    {
-      std::string method;
-      std::string uri;
-      int http_version_major;
-      int http_version_minor;
-      std::vector<Header> headers;
-    };
-}
-
-
+namespace iqlogger::stats::http {
+struct Request {
+  std::string method;
+  std::string uri;
+  int http_version_major;
+  int http_version_minor;
+  std::vector<Header> headers;
+};
+}  // namespace iqlogger::stats::http

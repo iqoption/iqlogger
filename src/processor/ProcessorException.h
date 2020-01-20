@@ -12,9 +12,8 @@
 
 namespace iqlogger::processor {
 
-    class ProcessorException : public Exception {
-        using Exception::Exception;
-    };
-}
-
-
+class ProcessorException : public Exception
+{
+  using Exception::Exception;
+};
+}  // namespace iqlogger::processor
