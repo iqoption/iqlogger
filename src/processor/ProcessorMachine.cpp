@@ -29,8 +29,9 @@ void ProcessorMachine::initImpl(std::any) {}
 void ProcessorMachine::startImpl() {
   TRACE("ProcessorMachine::start()");
 
-  DEBUG("Initialize V8 Engine: " << Engine::getInstance());
+  auto engine = Engine::getInstance();
 
+  DEBUG("Initialize V8 Engine: " << engine);
   DEBUG("Retrieve scripts from config...");
 
   for (size_t i = 0; i < m_thread_num; ++i) {
@@ -115,7 +116,9 @@ ProcessorScriptIndex ProcessorMachine::addProcessor(const std::string& script_so
 }
 
 bool ProcessorMachine::checkScript(const std::string& script_source) const {
-  DEBUG("Initialize V8 Engine: " << Engine::getInstance());
+
+  auto engine = Engine::getInstance();
+  DEBUG("Initialize V8 Engine: " << engine);
 
   try {
     ScriptMap scriptMap;

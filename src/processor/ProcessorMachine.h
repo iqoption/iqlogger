@@ -67,12 +67,10 @@ private:
   }
 
 private:
+
   size_t m_thread_num;
   std::vector<std::thread> m_threads;
-  //  std::vector<utils::atomic::aligned_atomic_t<uint64_t>> m_heap_sizes;
-
   InternalScriptMap m_scriptSources;
-
   ProcessorRecordQueue m_processQueue;
 };
 

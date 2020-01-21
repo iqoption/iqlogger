@@ -24,7 +24,7 @@ public:
 
 private:
 
-  v8::Local<v8::Object> makeJsObject(const UniqueMessagePtr& messagePtr) const;
+  [[nodiscard]] v8::Local<v8::Object> makeJsObject(const UniqueMessagePtr& messagePtr) const;
 
   static UniqueMessagePtr makeMessageObject(std::string&& message);
 
