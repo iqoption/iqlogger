@@ -120,7 +120,7 @@ GelfMessage::gelf::gelf(std::string_view message) {
         key = '_' + key;
 
       if (m.value.IsString()) {
-        additionalFields.emplace(key, m.value.GetString());
+        additionalFields.emplace(key, std::string(m.value.GetString()));
       } else if (m.value.IsInt()) {
         additionalFields.emplace(key, m.value.GetInt());
       } else if (m.value.IsDouble()) {
