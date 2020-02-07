@@ -18,6 +18,8 @@ jobs:
 
 script:
     - export VERSION=`cat ./version`
+    - chmod +x .build/ubuntu16.sh
+    - chmod +x .build/ubuntu18.sh
     - docker build -t builder --build-arg VERSION="$VERSION" --build-arg TAG="$TAG" --build-arg ARCH="$ARCH" --build-arg UBUNTU="$UBUNTU" --build-arg CI_PIPELINE_ID="$TRAVIS_BUILD_NUMBER" --build-arg CI_COMMIT_REF_NAME="$TRAVIS_BRANCH" --build-arg CI_COMMIT_SHA="$TRAVIS_COMMIT" --build-arg CI_COMMIT_MESSAGE="$TRAVIS_COMMIT_MESSAGE" --build-arg CI_USER="$USER" -f .build/Dockerfile .
     - docker create --name builder builder
     - mkdir -p ${TRAVIS_BUILD_DIR}/build
