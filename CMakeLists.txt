@@ -31,6 +31,39 @@ configure_file (
         "${PROJECT_BINARY_DIR}/src/Version.h"
 )
 
+if (DEFINED ENV{CI_PIPELINE_ID})
+    set(BUILD_ID "$ENV{CI_PIPELINE_ID}")
+else ()
+    set(BUILD_ID "undefined")
+endif ()
+message("Build id: ${BUILD_ID}")
+
+if (DEFINED ENV{CI_COMMIT_REF_NAME})
+    set(BUILD_COMMIT "$ENV{CI_COMMIT_SHA} ($ENV{CI_COMMIT_MESSAGE})")
+    set(GIT_VERSION "$ENV{CI_COMMIT_REF_NAME}")
+else ()
+    set(BUILD_COMMIT "undefined (undefined)")
+    execute_process(
+            COMMAND git rev-parse --abbrev-ref HEAD
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_VERSION
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+endif ()
+message("Build commit: ${BUILD_COMMIT}")
+message("Git version: ${GIT_VERSION}")
+
+string(TIMESTAMP BUILD_DATE_TIME "%Y-%m-%d %H:%M:%S UTC" UTC)
+
+if (DEFINED ENV{CI_USER})
+    set(BUILD_USER "$ENV{CI_USER}")
+else ()
+    set(BUILD_USER "undefined")
+endif ()
+
+message("Build date: ${BUILD_DATE_TIME}")
+message("Build user: ${BUILD_USER}")
+
 configure_file (
         "${PROJECT_SOURCE_DIR}/src/config/Config.h.in"
         "${PROJECT_BINARY_DIR}/src/config/Config.h"
@@ -38,12 +71,22 @@ configure_file (
 
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
-set(Boost_USE_STATIC_RUNTIME    ON)
 
-find_package(Boost COMPONENTS system iostreams program_options REQUIRED)
+find_package(Boost COMPONENTS system iostreams program_options regex REQUIRED)
 
 if(NOT Boost_FOUND)
     message(FATAL "Boost not found!")
+endif()
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    set(CPP_FILESYSTEM_LIB "c++fs")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    set(CPP_FILESYSTEM_LIB "stdc++fs")
+    set(EC_STATIC_GLIBC ON)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+    message(FATAL "Intel is not supported!")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    message(FATAL "MS Visual Studio is not supported!")
 endif()
 
 include_directories("${PROJECT_SOURCE_DIR}/src")
@@ -80,7 +123,7 @@ add_executable(${PROJECT_NAME} src/main.cpp
         src/formats/gelf/GelfMessage.cpp
         )
 
-set(IQLOGGER_LIBS "${IQLOGGER_INPUT_LIBRARIES}${IQLOGGER_OUTPUT_LIBRARIES}${IQLOGGER_STATS_LIBRARIES};${Boost_LIBRARIES};tbb;pthread;z;stdc++fs")
+set(IQLOGGER_LIBS "${IQLOGGER_INPUT_LIBRARIES}${IQLOGGER_OUTPUT_LIBRARIES}${IQLOGGER_STATS_LIBRARIES};${Boost_LIBRARIES};${CPP_FILESYSTEM_LIB};tbb;pthread;z;")
 
 if(IQLOGGER_WITH_PROCESSOR)
     message("Processor detected")
