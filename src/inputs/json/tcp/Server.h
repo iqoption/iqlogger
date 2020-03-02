@@ -114,7 +114,8 @@ namespace iqlogger::inputs::json::tcp {
     public:
 
         explicit Server(RecordQueuePtr<Json> queuePtr, boost::asio::io_service &io_service, short port)
-                : m_acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
+                : m_io_service(io_service),
+                  m_acceptor(io_service, tcp::endpoint(tcp::v4(), port)),
                   m_queuePtr(queuePtr)
         {
             start_accept();
@@ -128,7 +129,7 @@ namespace iqlogger::inputs::json::tcp {
         void start_accept()
         {
             tcp_connection::pointer new_connection =
-                    tcp_connection::create(m_acceptor.get_io_service(), m_queuePtr);
+                    tcp_connection::create(m_io_service, m_queuePtr);
 
             auto handler = [this, new_connection](const boost::system::error_code &error) {
                 handle_accept(new_connection, error);
@@ -152,6 +153,7 @@ namespace iqlogger::inputs::json::tcp {
             start_accept();
         }
 
+        boost::asio::io_service &m_io_service;
         tcp::acceptor m_acceptor;
         RecordQueuePtr<Json> m_queuePtr;
     };
