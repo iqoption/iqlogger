@@ -1,6 +1,9 @@
 IQ Logger
 =======================
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.org/iqoption/iqlogger.svg?branch=master)](https://travis-ci.org/iqoption/iqlogger)
+
 **IQLogger** - высокопроизводительное легковесное решение для сбора, процессинга, транспорта и балансировки логов из любых источников, включая:
 
  - логи своих приложений

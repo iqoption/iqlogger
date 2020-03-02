@@ -75,11 +75,11 @@ GelfOutput::GelfOutput(config::DestinationConfig destinationConfig, metrics::ato
             }
         };
 
-        auto connect = [&socket, &error, upstream, port = m_port, &run]() {
+        auto connect = [this, &socket, &error, upstream, port = m_port, &run]() {
 
             DEBUG("Connect to " << upstream << ":" << port);
 
-            boost::asio::ip::tcp::resolver resolver(socket.get_io_service());
+            boost::asio::ip::tcp::resolver resolver(m_io_service);
 
             try
             {

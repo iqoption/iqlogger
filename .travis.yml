@@ -1,0 +1,46 @@
+os: linux
+dist: xenial
+language: shell
+
+services:
+    - docker
+
+jobs:
+    include:
+        - env:
+              - TAG=ubuntu16
+              - ARCH=amd64
+              - UBUNTU=xenial
+        - env:
+              - TAG=ubuntu18
+              - ARCH=amd64
+              - UBUNTU=bionic
+
+script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
+    - export VERSION=`cat ./version`
+    - chmod +x .build/ubuntu16.sh
+    - chmod +x .build/ubuntu18.sh
+    - docker build -t builder --build-arg VERSION="$VERSION" --build-arg TAG="$TAG" --build-arg ARCH="$ARCH" --build-arg UBUNTU="$UBUNTU" --build-arg CI_PIPELINE_ID="$TRAVIS_BUILD_NUMBER" --build-arg CI_COMMIT_REF_NAME="$TRAVIS_BRANCH" --build-arg CI_COMMIT_SHA="$TRAVIS_COMMIT" --build-arg CI_COMMIT_MESSAGE="$TRAVIS_COMMIT_MESSAGE" --build-arg CI_USER="$USER" -f .build/Dockerfile .
+    - docker create --name builder builder
+    - mkdir -p ${TRAVIS_BUILD_DIR}/build
+    - docker cp builder:/iqlogger/iqlogger ${TRAVIS_BUILD_DIR}/build/
+    - docker cp builder:/iqlogger/.build_deb/${TAG}/iqlogger_$VERSION-${UBUNTU}_$ARCH.deb ${TRAVIS_BUILD_DIR}/build/
+    - docker rm builder
+    - ls -alh ${TRAVIS_BUILD_DIR}/build
+    - cp ${TRAVIS_BUILD_DIR}/build/iqlogger .docker/usr/local/bin/;
+    - if [[ "$TAG" == "ubuntu18" ]]; then
+        docker build -t ${DOCKER_REPOSITORY}:$VERSION .docker;
+        docker push ${DOCKER_REPOSITORY}:$VERSION;
+        docker tag ${DOCKER_REPOSITORY}:$VERSION ${DOCKER_REPOSITORY}:latest;
+        docker push ${DOCKER_REPOSITORY}:latest;
+      fi
+
+deploy:
+    provider: releases
+    api_key: "$GITHUB_TOKEN"
+    file_glob: true
+    file: ${TRAVIS_BUILD_DIR}/build/*.deb
+    skip_cleanup: true
+    on:
+        tags: true

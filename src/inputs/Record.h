@@ -47,7 +47,7 @@ namespace iqlogger::inputs {
 
     public:
 
-        template <typename = std::enable_if_t<std::is_same<typename T::SourceT, void>::value>>
+        template <typename ST = typename T::SourceT, typename = std::enable_if_t<std::is_same_v<ST, void>>>
         explicit Record(RecordDataT&& data) : m_data(std::move(data))
         {
             TRACE("inputs::Record::Record()");
@@ -55,8 +55,9 @@ namespace iqlogger::inputs {
 
         template <
             class U,
-            typename = std::enable_if_t<std::is_constructible<typename T::SourceT, std::decay_t<U>>::value>,
-            typename = std::enable_if_t<!std::is_same<typename T::SourceT, void>::value>
+            typename ST = typename T::SourceT,
+            typename = std::enable_if_t<std::is_constructible_v<ST, std::decay_t<U>>>,
+            typename = std::enable_if_t<!std::is_same_v<ST, void>>
         >
         explicit Record(RecordDataT&& data, U&& source) : m_data(std::move(data)), m_source(std::forward<U>(source))
         {
