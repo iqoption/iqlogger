@@ -17,6 +17,7 @@ jobs:
               - UBUNTU=bionic
 
 script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
     - export VERSION=`cat ./version`
     - chmod +x .build/ubuntu16.sh
     - chmod +x .build/ubuntu18.sh
@@ -27,14 +28,13 @@ script:
     - docker cp builder:/iqlogger/.build_deb/${TAG}/iqlogger_$VERSION-${UBUNTU}_$ARCH.deb ${TRAVIS_BUILD_DIR}/build/
     - docker rm builder
     - ls -alh ${TRAVIS_BUILD_DIR}/build
+    - cp ${TRAVIS_BUILD_DIR}/build/iqlogger .docker/usr/local/bin/;
     - if [[ "$TAG" == "ubuntu18" ]]; then
-        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin;
-        cp ${TRAVIS_BUILD_DIR}/build/iqlogger .docker/usr/local/bin/;
         docker build -t ${DOCKER_REPOSITORY}:$VERSION .docker;
         docker push ${DOCKER_REPOSITORY}:$VERSION;
         docker tag ${DOCKER_REPOSITORY}:$VERSION ${DOCKER_REPOSITORY}:latest;
         docker push ${DOCKER_REPOSITORY}:latest;
-        fi
+      fi
 
 deploy:
     provider: releases
